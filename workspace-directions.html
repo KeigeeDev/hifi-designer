@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Five structural directions for the Local Hi-Fi Project Browser.">
+  <title>Local Hi-Fi Project Browser — Direction Study</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --accent: #2f5cff;
+      --font-scale: 1;
+      --space-scale: 1;
+      --radius: 10px;
+      --paper: #f4f2ec;
+      --surface: #fbfaf7;
+      --white: #fff;
+      --ink: #171915;
+      --muted: #666961;
+      --faint: #70736b;
+      --line: #d7d5ce;
+      --line-strong: #b9bbb3;
+      --green: #177152;
+      --font: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --s1: calc(4px * var(--space-scale));
+      --s2: calc(8px * var(--space-scale));
+      --s3: calc(12px * var(--space-scale));
+      --s4: calc(16px * var(--space-scale));
+      --s6: calc(24px * var(--space-scale));
+      --s8: calc(32px * var(--space-scale));
+      --s12: calc(48px * var(--space-scale));
+      --s16: calc(64px * var(--space-scale));
+      --text-xs: calc(.6875rem * var(--font-scale));
+      --text-sm: calc(.8125rem * var(--font-scale));
+      --text-body: calc(1rem * var(--font-scale));
+      --text-lg: calc(1.25rem * var(--font-scale));
+      --text-xl: calc(1.75rem * var(--font-scale));
+      --text-display: calc(4rem * var(--font-scale));
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 400 var(--text-body)/1.5 var(--font);
+      font-kerning: normal;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 38%, transparent); outline-offset: 3px; }
+    .skip-link {
+      position: fixed;
+      z-index: 20;
+      top: var(--s3);
+      left: var(--s3);
+      padding: var(--s2) var(--s3);
+      background: var(--ink);
+      color: var(--white);
+      transform: translateY(-160%);
+    }
+    .skip-link:focus { transform: translateY(0); }
+    .sheet-header {
+      min-height: 76vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, .6fr);
+      align-items: end;
+      gap: var(--s12);
+      padding: clamp(4rem, 12vw, 10rem) clamp(1rem, 5vw, 5rem) var(--s16);
+      border-bottom: 1px solid var(--line-strong);
+    }
+    .kicker, .direction-index, .micro {
+      font: 650 var(--text-xs)/1 var(--mono);
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+    .kicker { margin: 0 0 var(--s4); color: var(--accent); }
+    .sheet-header h1 {
+      max-width: 12ch;
+      margin: 0;
+      font-size: clamp(3rem, 8vw, 7.5rem);
+      line-height: .9;
+      letter-spacing: -.04em;
+      text-wrap: balance;
+    }
+    .sheet-intro {
+      max-width: 36ch;
+      margin: 0;
+      color: var(--muted);
+      font-size: var(--text-lg);
+      text-wrap: pretty;
+    }
+    .sheet-facts {
+      display: grid;
+      gap: var(--s4);
+      margin-top: var(--s8);
+      padding-top: var(--s4);
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: var(--text-sm);
+    }
+    .sheet-facts strong { display: block; margin-bottom: var(--s1); color: var(--ink); }
+    .direction-nav {
+      position: sticky;
+      z-index: 10;
+      top: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      padding: var(--s3) clamp(1rem, 5vw, 5rem);
+      border-bottom: 1px solid var(--line);
+      background: rgba(244, 242, 236, .94);
+      backdrop-filter: blur(12px);
+      overflow-x: auto;
+    }
+    .direction-nav strong {
+      margin-right: auto;
+      white-space: nowrap;
+      font-size: var(--text-sm);
+    }
+    .direction-nav a {
+      min-width: 42px;
+      min-height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      text-decoration: none;
+      font: 600 var(--text-xs)/1 var(--mono);
+    }
+    .direction-nav a:hover { border-color: var(--ink); background: var(--ink); color: var(--white); }
+    .direction {
+      padding: clamp(4rem, 10vw, 8rem) clamp(1rem, 5vw, 5rem);
+      border-bottom: 1px solid var(--line-strong);
+      scroll-margin-top: 68px;
+    }
+    .direction-head {
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr) minmax(240px, 430px);
+      gap: var(--s6);
+      align-items: start;
+      margin-bottom: var(--s12);
+    }
+    .direction-index { padding-top: var(--s2); color: var(--accent); }
+    .direction h2 {
+      max-width: 18ch;
+      margin: 0;
+      font-size: clamp(2rem, 4.4vw, 4.5rem);
+      line-height: .96;
+      letter-spacing: -.035em;
+      text-wrap: balance;
+    }
+    .direction-note { margin: var(--s3) 0 0; color: var(--muted); }
+    .axes {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      margin: 0;
+      border-top: 1px solid var(--line);
+      border-left: 1px solid var(--line);
+    }
+    .axes div { padding: var(--s3); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .axes dt { color: var(--faint); font: 600 var(--text-xs)/1 var(--mono); text-transform: uppercase; }
+    .axes dd { margin: var(--s2) 0 0; font-size: var(--text-sm); }
+    .mock {
+      min-height: 700px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line-strong);
+      border-radius: calc(var(--radius) + 2px);
+      background: var(--paper);
+      box-shadow: 0 6px 8px rgba(35, 38, 31, .08);
+    }
+    .mock button, .mock input { pointer-events: none; }
+    .mock-topbar {
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s4);
+      padding: 0 var(--s6);
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+      font-size: var(--text-sm);
+      font-weight: 680;
+    }
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      grid-template-columns: 1fr 4px;
+      gap: 3px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) - 2px);
+      background: var(--white);
+    }
+    .brand-mark::before { content: ""; background: var(--ink); }
+    .brand-mark::after { content: ""; background: var(--accent); }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      color: var(--muted);
+      font: 500 var(--text-xs)/1 var(--mono);
+    }
+    .status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+    .search {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      padding: 0 var(--s3);
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) - 2px);
+      background: var(--surface);
+      color: var(--faint);
+      font-size: var(--text-sm);
+    }
+    .search kbd { margin-left: auto; padding: 3px 5px; border: 1px solid var(--line); border-radius: 4px; font: 500 10px/1 var(--mono); }
+    .project-row {
+      min-height: 94px;
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr) 180px 70px 42px;
+      gap: var(--s4);
+      align-items: center;
+      padding: var(--s4) var(--s2);
+      border-bottom: 1px solid var(--line);
+    }
+    .thumb {
+      width: 56px;
+      aspect-ratio: 1.15;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3px;
+      padding: 6px;
+      border: 1px solid var(--line-strong);
+      border-radius: calc(var(--radius) - 2px);
+      background: var(--white);
+    }
+    .thumb i { display: block; background: var(--line); }
+    .thumb i:nth-child(2), .thumb i:nth-child(3) { background: var(--accent); }
+    .project-title { display: block; font-size: var(--text-body); font-weight: 660; letter-spacing: -.015em; }
+    .project-slug, .project-meta, .page-count { display: block; margin-top: var(--s1); color: var(--muted); font: 500 var(--text-xs)/1.35 var(--mono); }
+    .arrow {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      justify-self: end;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+    }
+
+    /* 01 */
+    .reference-library {
+      width: min(1080px, calc(100% - 64px));
+      margin: 0 auto;
+      padding: 70px 0;
+    }
+    .reference-lead {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(250px, .75fr);
+      gap: var(--s16);
+      align-items: end;
+      margin-bottom: var(--s12);
+    }
+    .reference-lead h3 {
+      max-width: 10ch;
+      margin: var(--s3) 0 0;
+      font-size: clamp(2.5rem, 5vw, 5.4rem);
+      line-height: .91;
+      letter-spacing: -.04em;
+    }
+    .review-map { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+    .review-map > div { display: grid; grid-template-columns: 28px 1fr auto; gap: var(--s2); padding: var(--s3); border-bottom: 1px solid var(--line); font-size: var(--text-sm); }
+    .review-map > div:last-child { border: 0; }
+    .review-map span:first-child { color: var(--faint); font: 500 var(--text-xs)/1.4 var(--mono); }
+    .library-tools { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); padding-bottom: var(--s3); border-bottom: 1px solid var(--line-strong); }
+
+    /* 02 */
+    .split-shell {
+      height: 700px;
+      display: grid;
+      grid-template-columns: 210px 310px minmax(0, 1fr);
+    }
+    .split-rail {
+      display: flex;
+      flex-direction: column;
+      padding: var(--s6) var(--s4);
+      border-right: 1px solid var(--line);
+      background: var(--surface);
+    }
+    .split-rail .brand { margin-bottom: var(--s12); }
+    .rail-link { padding: var(--s3) var(--s2); color: var(--muted); font-size: var(--text-sm); }
+    .rail-link.active { color: var(--ink); font-weight: 650; }
+    .rail-link.active::before { content: "•"; margin-right: var(--s2); color: var(--accent); }
+    .rail-foot { margin-top: auto; padding-top: var(--s4); border-top: 1px solid var(--line); color: var(--muted); font: 500 var(--text-xs)/1.5 var(--mono); }
+    .split-list { min-width: 0; padding: var(--s6) var(--s4); border-right: 1px solid var(--line); overflow: hidden; }
+    .split-list h3 { margin: var(--s8) 0 var(--s2); font-size: var(--text-xl); letter-spacing: -.025em; }
+    .compact-project { padding: var(--s4) var(--s2); border-bottom: 1px solid var(--line); }
+    .compact-project.active { margin-inline: calc(var(--s2) * -1); padding-inline: var(--s4); background: var(--ink); color: var(--white); }
+    .compact-project.active .project-slug { color: #c9cbc5; }
+    .split-preview { min-width: 0; display: grid; grid-template-rows: auto 1fr auto; background: #e9e8e3; }
+    .preview-tools { min-height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 var(--s4); border-bottom: 1px solid var(--line); background: var(--surface); }
+    .device-set { display: flex; gap: var(--s1); }
+    .device-set span { padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); font: 600 var(--text-xs)/1 var(--mono); }
+    .device-set span.active { border-color: var(--ink); background: var(--ink); color: var(--white); }
+    .canvas { display: grid; place-items: center; padding: var(--s6); background-image: radial-gradient(#c9c8c1 .7px, transparent .7px); background-size: 14px 14px; }
+    .page-mini { width: 82%; height: 92%; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--white); box-shadow: 0 6px 8px rgba(35, 38, 31, .1); overflow: hidden; }
+    .page-mini .mini-nav { height: 10%; border-bottom: 1px solid var(--line); }
+    .page-mini .mini-hero { height: 50%; display: grid; grid-template-columns: 1.3fr .7fr; }
+    .page-mini .mini-hero::before { content: ""; margin: 12% 10%; background: linear-gradient(var(--ink) 0 18%, transparent 18% 32%, var(--line) 32% 38%, transparent 38% 52%, var(--line) 52% 58%, transparent 58%); }
+    .page-mini .mini-hero::after { content: ""; background: var(--accent); }
+    .page-mini .mini-grid { height: 40%; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+    .page-mini .mini-grid i { border-right: 1px solid var(--line); }
+    .preview-pages { min-height: 54px; display: flex; align-items: center; gap: var(--s2); padding: var(--s2) var(--s4); border-top: 1px solid var(--line); background: var(--surface); }
+    .preview-pages span { padding: 8px 10px; color: var(--muted); font-size: var(--text-sm); }
+    .preview-pages span.active { color: var(--ink); border-bottom: 2px solid var(--accent); }
+
+    /* 03 */
+    .index-shell { min-height: 700px; padding: var(--s6); background: var(--surface); }
+    .index-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: var(--s6); border-bottom: 1px solid var(--line-strong); }
+    .index-heading { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: var(--s12); align-items: end; padding: var(--s12) 0 var(--s8); }
+    .index-heading h3 { max-width: 8ch; margin: 0; font-size: clamp(3rem, 7vw, 6rem); line-height: .87; letter-spacing: -.04em; }
+    .index-heading p { color: var(--muted); }
+    .index-row {
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr) 220px 120px;
+      gap: var(--s4);
+      align-items: center;
+      min-height: 94px;
+      border-top: 1px solid var(--line);
+    }
+    .index-row b { font-size: var(--text-lg); letter-spacing: -.02em; }
+    .index-row.active { color: var(--white); background: var(--ink); margin-inline: calc(var(--s6) * -1); padding-inline: var(--s6); }
+    .index-row.active .project-meta { color: #c9cbc5; }
+    .index-num { color: var(--faint); font: 500 var(--text-xs)/1 var(--mono); }
+    .index-row.active .index-num { color: #97a9ff; }
+
+    /* 04 */
+    .gallery-shell { min-height: 700px; padding: var(--s6); background: var(--surface); }
+    .gallery-head { display: grid; grid-template-columns: 1fr 320px; gap: var(--s8); align-items: end; margin: var(--s8) 0 var(--s6); }
+    .gallery-head h3 { margin: 0; font-size: clamp(2.5rem, 5vw, 4.7rem); line-height: .92; letter-spacing: -.04em; }
+    .gallery-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: var(--s3); }
+    .page-tile { min-height: 225px; display: grid; grid-template-rows: 1fr auto; border: 1px solid var(--line); background: var(--white); }
+    .page-tile.featured { grid-row: span 2; min-height: 470px; }
+    .tile-art { padding: var(--s4); background: var(--paper); overflow: hidden; }
+    .tile-page { height: 100%; border: 1px solid var(--line-strong); background: var(--white); }
+    .tile-page::before { content: ""; display: block; height: 12%; border-bottom: 1px solid var(--line); }
+    .tile-page::after { content: ""; display: block; width: 58%; height: 45%; margin: 10% 8%; background: linear-gradient(var(--ink) 0 16%, transparent 16% 28%, var(--line) 28% 34%, transparent 34% 48%, var(--accent) 48% 100%); }
+    .tile-copy { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); padding: var(--s3); border-top: 1px solid var(--line); }
+    .tile-copy strong { font-size: var(--text-sm); }
+    .tile-copy span { color: var(--muted); font: 500 var(--text-xs)/1 var(--mono); }
+
+    /* 05 */
+    .command-shell { height: 700px; display: grid; grid-template-rows: 58px auto 1fr; background: #efeee9; }
+    .command-bar { display: grid; grid-template-columns: 210px minmax(300px, 620px) 1fr; align-items: center; gap: var(--s4); padding: 0 var(--s4); border-bottom: 1px solid var(--line); background: var(--surface); }
+    .command-input { min-height: 38px; display: flex; align-items: center; gap: var(--s2); padding: 0 var(--s3); border: 1px solid var(--line-strong); border-radius: calc(var(--radius) - 4px); background: var(--white); color: var(--muted); font-size: var(--text-sm); }
+    .command-input code { margin-left: auto; color: var(--faint); font: 500 var(--text-xs)/1 var(--mono); }
+    .command-meta { justify-self: end; color: var(--muted); font: 500 var(--text-xs)/1 var(--mono); }
+    .command-tabs { min-height: 42px; display: flex; align-items: end; padding: 0 var(--s4); border-bottom: 1px solid var(--line); background: var(--surface); }
+    .command-tabs span { padding: var(--s3); color: var(--muted); font-size: var(--text-sm); }
+    .command-tabs span.active { color: var(--ink); border-bottom: 2px solid var(--accent); }
+    .command-body { min-height: 0; display: grid; grid-template-columns: minmax(420px, .9fr) minmax(0, 1.1fr); }
+    .command-table { background: var(--surface); border-right: 1px solid var(--line); }
+    .table-head, .table-row { display: grid; grid-template-columns: minmax(0, 1.5fr) .7fr 80px; gap: var(--s3); align-items: center; padding: 0 var(--s4); border-bottom: 1px solid var(--line); }
+    .table-head { min-height: 38px; color: var(--faint); font: 600 var(--text-xs)/1 var(--mono); text-transform: uppercase; }
+    .table-row { min-height: 62px; font-size: var(--text-sm); }
+    .table-row.active { background: var(--ink); color: var(--white); }
+    .table-row span:nth-child(n+2) { color: var(--muted); font: 500 var(--text-xs)/1.3 var(--mono); }
+    .table-row.active span:nth-child(n+2) { color: #c9cbc5; }
+    .command-preview { min-width: 0; display: grid; grid-template-rows: 48px 1fr; }
+    .command-preview-head { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--s4); border-bottom: 1px solid var(--line); background: var(--surface); }
+    .command-preview .canvas { min-height: 0; }
+
+    .sheet-footer {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 460px);
+      gap: var(--s12);
+      align-items: end;
+      padding: clamp(4rem, 10vw, 8rem) clamp(1rem, 5vw, 5rem);
+      background: var(--ink);
+      color: var(--white);
+    }
+    .sheet-footer h2 { max-width: 12ch; margin: 0; font-size: clamp(2.5rem, 5vw, 5rem); line-height: .94; letter-spacing: -.04em; }
+    .sheet-footer p { margin: 0; color: #c9cbc5; }
+
+    @media (max-width: 900px) {
+      .sheet-header, .direction-head, .sheet-footer { grid-template-columns: 1fr; }
+      .direction-head { gap: var(--s4); }
+      .direction-index { padding: 0; }
+      .mock { min-height: 620px; overflow-x: auto; }
+      .reference-lead { grid-template-columns: 1fr; gap: var(--s8); }
+      .split-shell { min-width: 900px; }
+      .index-heading { grid-template-columns: 1fr; gap: var(--s4); }
+      .gallery-grid { grid-template-columns: 1.25fr 1fr; }
+      .gallery-grid .page-tile:last-child { display: none; }
+      .command-shell { min-width: 920px; }
+    }
+    @media (max-width: 620px) {
+      .sheet-header { min-height: auto; padding-top: 7rem; }
+      .direction-nav strong { display: none; }
+      .direction-nav { justify-content: center; }
+      .axes { grid-template-columns: 1fr; }
+      .mock { min-height: 540px; }
+      .mock-topbar { padding-inline: var(--s3); }
+      .status span { display: none; }
+      .reference-library { width: calc(100% - 28px); padding-block: 40px; }
+      .reference-lead h3 { font-size: 3.2rem; }
+      .project-row { grid-template-columns: 54px minmax(0, 1fr) 38px; }
+      .project-row .project-meta, .project-row .page-count { display: none; }
+      .gallery-head { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: 1fr; }
+      .gallery-grid .page-tile:not(.featured) { display: none; }
+      .index-row { grid-template-columns: 46px minmax(0, 1fr); }
+      .index-row > :nth-child(n+3) { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#directions">Skip to directions</a>
+  <header class="sheet-header">
+    <div>
+      <p class="kicker">Local Hi-Fi Project Browser</p>
+      <h1>Five ways into the same workspace.</h1>
+    </div>
+    <div>
+      <p class="sheet-intro">Every direction keeps the reference palette and editorial restraint. The choice is about navigation topology, review density, and how quickly the preview takes over.</p>
+      <div class="sheet-facts">
+        <div><strong>Audience</strong>One designer, working locally</div>
+        <div><strong>Primary task</strong>Find a project, open a page, review responsive behavior</div>
+        <div><strong>Fixed system</strong>Off-white paper, carbon ink, Signal Blue, sans + mono</div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="direction-nav" aria-label="Design directions">
+    <strong>Direction study</strong>
+    <a href="#direction-1" aria-label="Go to direction 1">01</a>
+    <a href="#direction-2" aria-label="Go to direction 2">02</a>
+    <a href="#direction-3" aria-label="Go to direction 3">03</a>
+    <a href="#direction-4" aria-label="Go to direction 4">04</a>
+    <a href="#direction-5" aria-label="Go to direction 5">05</a>
+  </nav>
+
+  <main id="directions">
+    <section class="direction" id="direction-1">
+      <header class="direction-head">
+        <div class="direction-index">Direction 01</div>
+        <div>
+          <h2>Reference-faithful library</h2>
+          <p class="direction-note">A spacious archive index that hands the full viewport to the preview after selection. Closest to the supplied Page Designer workspace.</p>
+        </div>
+        <dl class="axes">
+          <div><dt>Topology</dt><dd>Library → viewer</dd></div>
+          <div><dt>Density</dt><dd>Airy</dd></div>
+          <div><dt>Strength</dt><dd>Calm orientation</dd></div>
+          <div><dt>Tradeoff</dt><dd>More mode switching</dd></div>
+        </dl>
+      </header>
+      <div class="mock" aria-label="Reference-faithful library mockup">
+        <div class="mock-topbar">
+          <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Hi-Fi Designer</div>
+          <div class="status"><span>Workspace ready</span>Jul 25, 2026</div>
+        </div>
+        <div class="reference-library">
+          <div class="reference-lead">
+            <div>
+              <div class="micro" style="color:var(--accent)">Your workspace</div>
+              <h3>Choose a project to review.</h3>
+              <p style="max-width:34rem;color:var(--muted)">Open every local design from one index, then check each page at the width that matters.</p>
+            </div>
+            <div class="review-map" aria-label="Review workflow">
+              <div><span>01</span><strong>Choose project</strong><span>→</span></div>
+              <div><span>02</span><strong>Browse pages</strong><span>→</span></div>
+              <div><span>03</span><strong>Tune and review</strong><span>↗</span></div>
+            </div>
+          </div>
+          <div class="library-tools">
+            <strong class="micro">Projects (3)</strong>
+            <div class="search" style="width:300px">⌕ <span>Search projects</span><kbd>⌘K</kbd></div>
+          </div>
+          <div class="project-row">
+            <span class="thumb"><i></i><i></i><i></i><i></i></span>
+            <span><span class="project-title">Keigee — Shopify Developer Portfolio</span><span class="project-slug">keigee-shopify-developer-portfolio</span></span>
+            <span class="project-meta">Updated today<br>Home · Work · About</span>
+            <span class="page-count">3 pages</span><span class="arrow">→</span>
+          </div>
+          <div class="project-row">
+            <span class="thumb"><i></i><i></i><i></i><i></i></span>
+            <span><span class="project-title">Northlight Studio Journal</span><span class="project-slug">northlight-studio-journal</span></span>
+            <span class="project-meta">Updated Jul 24<br>Index · Article</span>
+            <span class="page-count">2 pages</span><span class="arrow">→</span>
+          </div>
+          <div class="project-row">
+            <span class="thumb"><i></i><i></i><i></i><i></i></span>
+            <span><span class="project-title">Coffee Atlas</span><span class="project-slug">coffee-atlas</span></span>
+            <span class="project-meta">Updated Jul 21<br>Landing</span>
+            <span class="page-count">1 page</span><span class="arrow">→</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="direction-2">
+      <header class="direction-head">
+        <div class="direction-index">Direction 02</div>
+        <div>
+          <h2>Persistent split workspace</h2>
+          <p class="direction-note">Projects, pages, and preview remain visible together. It is faster for repeated comparison and feels closest to a desktop design tool.</p>
+        </div>
+        <dl class="axes">
+          <div><dt>Topology</dt><dd>Three-pane</dd></div>
+          <div><dt>Density</dt><dd>Focused</dd></div>
+          <div><dt>Strength</dt><dd>Review speed</dd></div>
+          <div><dt>Tradeoff</dt><dd>Less preview width</dd></div>
+        </dl>
+      </header>
+      <div class="mock" aria-label="Persistent split workspace mockup">
+        <div class="split-shell">
+          <aside class="split-rail">
+            <div class="brand"><span class="brand-mark"></span>Hi-Fi Designer</div>
+            <div class="micro" style="margin-bottom:var(--s2);color:var(--faint)">Workspace</div>
+            <div class="rail-link active">Projects</div>
+            <div class="rail-link">Recently opened</div>
+            <div class="rail-link">Review notes</div>
+            <div class="rail-foot">3 projects<br>6 pages<br>Generated 3:32 PM</div>
+          </aside>
+          <section class="split-list">
+            <div class="search">⌕ <span>Search projects</span><kbd>⌘K</kbd></div>
+            <h3>Projects</h3>
+            <div class="compact-project active"><strong>Keigee Portfolio</strong><span class="project-slug">3 pages · updated today</span></div>
+            <div class="compact-project"><strong>Northlight Journal</strong><span class="project-slug">2 pages · Jul 24</span></div>
+            <div class="compact-project"><strong>Coffee Atlas</strong><span class="project-slug">1 page · Jul 21</span></div>
+          </section>
+          <section class="split-preview">
+            <div class="preview-tools"><strong>Keigee Portfolio / Home</strong><div class="device-set"><span>Fit</span><span class="active">D</span><span>T</span><span>M</span></div></div>
+            <div class="canvas"><div class="page-mini"><div class="mini-nav"></div><div class="mini-hero"></div><div class="mini-grid"><i></i><i></i><i></i></div></div></div>
+            <div class="preview-pages"><span class="active">Home</span><span>Work</span><span>About</span></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="direction-3">
+      <header class="direction-head">
+        <div class="direction-index">Direction 03</div>
+        <div>
+          <h2>Editorial project index</h2>
+          <p class="direction-note">A stronger typographic point of view. The project list becomes the identity; opening a row transitions into the dedicated viewer.</p>
+        </div>
+        <dl class="axes">
+          <div><dt>Topology</dt><dd>Index → viewer</dd></div>
+          <div><dt>Density</dt><dd>Balanced</dd></div>
+          <div><dt>Strength</dt><dd>Distinct identity</dd></div>
+          <div><dt>Tradeoff</dt><dd>Fewer thumbnails</dd></div>
+        </dl>
+      </header>
+      <div class="mock" aria-label="Editorial project index mockup">
+        <div class="index-shell">
+          <div class="index-head">
+            <div class="brand"><span class="brand-mark"></span>Hi-Fi Designer</div>
+            <div class="status"><span>Local catalog</span>3 projects</div>
+          </div>
+          <div class="index-heading">
+            <h3>Designs, in working order.</h3>
+            <p>One local index for every page under review. Open a project, choose a page, then inspect the widths that matter.</p>
+          </div>
+          <div class="index-row">
+            <span class="index-num">001</span><b>Northlight Studio Journal</b><span class="project-meta">northlight-studio-journal</span><span class="page-count">2 pages</span>
+          </div>
+          <div class="index-row active">
+            <span class="index-num">002</span><b>Keigee — Shopify Developer Portfolio</b><span class="project-meta">Updated today · Home, Work, About</span><span class="page-count">Open →</span>
+          </div>
+          <div class="index-row">
+            <span class="index-num">003</span><b>Coffee Atlas</b><span class="project-meta">coffee-atlas</span><span class="page-count">1 page</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;gap:var(--s4);padding-top:var(--s6);border-top:1px solid var(--line)">
+            <div class="search" style="width:min(100%,340px)">⌕ <span>Search the index</span><kbd>⌘K</kbd></div>
+            <span class="project-meta">Catalog rebuilt 3:32 PM</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="direction-4">
+      <header class="direction-head">
+        <div class="direction-index">Direction 04</div>
+        <div>
+          <h2>Visual page contact sheet</h2>
+          <p class="direction-note">Page previews become the browsing unit. Best when projects are few and visual recognition is faster than reading filenames.</p>
+        </div>
+        <dl class="axes">
+          <div><dt>Topology</dt><dd>Project → page tiles</dd></div>
+          <div><dt>Density</dt><dd>Visual</dd></div>
+          <div><dt>Strength</dt><dd>Page recognition</dd></div>
+          <div><dt>Tradeoff</dt><dd>More rendering work</dd></div>
+        </dl>
+      </header>
+      <div class="mock" aria-label="Visual page contact sheet mockup">
+        <div class="mock-topbar">
+          <div class="brand"><span class="brand-mark"></span>Hi-Fi Designer</div>
+          <div class="status"><span>Workspace ready</span>6 pages</div>
+        </div>
+        <div class="gallery-shell">
+          <div class="gallery-head">
+            <div><div class="micro" style="color:var(--accent);margin-bottom:var(--s3)">Keigee Portfolio</div><h3>Choose the page, then choose the width.</h3></div>
+            <div class="search">⌕ <span>Search all pages</span><kbd>⌘K</kbd></div>
+          </div>
+          <div class="gallery-grid">
+            <div class="page-tile featured"><div class="tile-art"><div class="tile-page"></div></div><div class="tile-copy"><strong>Home</strong><span>sample_hifi_design.html →</span></div></div>
+            <div class="page-tile"><div class="tile-art"><div class="tile-page"></div></div><div class="tile-copy"><strong>Work</strong><span>work.html →</span></div></div>
+            <div class="page-tile"><div class="tile-art"><div class="tile-page"></div></div><div class="tile-copy"><strong>About</strong><span>about.html →</span></div></div>
+            <div class="page-tile"><div class="tile-art"><div class="tile-page"></div></div><div class="tile-copy"><strong>Contact</strong><span>contact.html →</span></div></div>
+            <div class="page-tile"><div class="tile-art"><div class="tile-page"></div></div><div class="tile-copy"><strong>Notes</strong><span>notes.html →</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="direction-5">
+      <header class="direction-head">
+        <div class="direction-index">Direction 05</div>
+        <div>
+          <h2>Compact command workspace</h2>
+          <p class="direction-note">A keyboard-forward, information-dense review surface. Search acts as the center of gravity while list and preview stay visible.</p>
+        </div>
+        <dl class="axes">
+          <div><dt>Topology</dt><dd>Command + master/detail</dd></div>
+          <div><dt>Density</dt><dd>Compact</dd></div>
+          <div><dt>Strength</dt><dd>Keyboard flow</dd></div>
+          <div><dt>Tradeoff</dt><dd>Least editorial air</dd></div>
+        </dl>
+      </header>
+      <div class="mock" aria-label="Compact command workspace mockup">
+        <div class="command-shell">
+          <div class="command-bar">
+            <div class="brand"><span class="brand-mark"></span>Hi-Fi Designer</div>
+            <div class="command-input">⌕ <span>Find a project or page</span><code>Ctrl K</code></div>
+            <div class="command-meta">3 projects · 6 pages</div>
+          </div>
+          <div class="command-tabs"><span class="active">All projects</span><span>Recent</span><span>Pages</span></div>
+          <div class="command-body">
+            <div class="command-table">
+              <div class="table-head"><span>Name</span><span>Modified</span><span>Pages</span></div>
+              <div class="table-row active"><strong>Keigee Portfolio</strong><span>Today, 2:44 PM</span><span>3</span></div>
+              <div class="table-row"><strong>Northlight Journal</strong><span>Jul 24</span><span>2</span></div>
+              <div class="table-row"><strong>Coffee Atlas</strong><span>Jul 21</span><span>1</span></div>
+              <div style="padding:var(--s6) var(--s4);color:var(--muted);font-size:var(--text-sm)">↑ ↓ Navigate &nbsp; Enter Open &nbsp; Esc Back</div>
+            </div>
+            <div class="command-preview">
+              <div class="command-preview-head"><strong>Home</strong><div class="device-set"><span>Fit</span><span class="active">D</span><span>T</span><span>M</span></div></div>
+              <div class="canvas"><div class="page-mini"><div class="mini-nav"></div><div class="mini-hero"></div><div class="mini-grid"><i></i><i></i><i></i></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="sheet-footer">
+    <h2>Choose the workflow, not just the screenshot.</h2>
+    <p>Pick a direction by number and name what carries forward. The next pass will produce three close refinements of that same structural idea, each with the live tweaks dock.</p>
+  </footer>
+</body>
+</html>

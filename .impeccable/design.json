@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-25T15:30:00+08:00",
+  "title": "Design System: Local Hi-Fi Project Browser",
+  "extensions": {
+    "colorMeta": {
+      "signal-blue": {
+        "role": "primary",
+        "displayName": "Signal Blue",
+        "canonical": "#2f5cff",
+        "tonalRamp": ["#07144b", "#0d2377", "#1736a8", "#2349d8", "#2f5cff", "#6d88ff", "#aab9ff", "#e9edff"]
+      },
+      "archive-paper": {
+        "role": "neutral",
+        "displayName": "Archive Paper",
+        "canonical": "#f4f2ec",
+        "tonalRamp": ["#25241f", "#45433d", "#66645d", "#88857d", "#aaa79f", "#cbc8c1", "#e5e2dc", "#f4f2ec"]
+      },
+      "carbon-ink": {
+        "role": "neutral",
+        "displayName": "Carbon Ink",
+        "canonical": "#171915",
+        "tonalRamp": ["#11130f", "#171915", "#30332d", "#4d5148", "#70756a", "#9da297", "#cdd0c8", "#f0f1ed"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Editorial Display",
+        "purpose": "Library headline only."
+      },
+      "body": {
+        "displayName": "Product Sans",
+        "purpose": "Controls, titles, and explanatory copy."
+      },
+      "label": {
+        "displayName": "Filesystem Mono",
+        "purpose": "Source names, dates, counts, and compact labels."
+      }
+    },
+    "shadows": [
+      {
+        "name": "preview-structural",
+        "value": "0 12px 28px rgba(35, 38, 31, 0.10)",
+        "purpose": "Separates the active preview from the review canvas."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state",
+        "value": "180ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Selection, hover, and panel state changes."
+      }
+    ],
+    "breakpoints": [
+      { "name": "compact", "value": "640px" },
+      { "name": "tablet", "value": "800px" },
+      { "name": "desktop", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "High-confidence local workspace action.",
+      "html": "<button class=\"ds-btn-primary\">Open project</button>",
+      "css": ".ds-btn-primary{min-height:44px;padding:10px 16px;border:0;border-radius:var(--radius,8px);background:#171915;color:#fff;font:650 14px/1 Inter,ui-sans-serif,sans-serif;cursor:pointer;transition:background 180ms cubic-bezier(.22,1,.36,1),transform 180ms cubic-bezier(.22,1,.36,1)}.ds-btn-primary:hover{background:#2f5cff}.ds-btn-primary:active{transform:translateY(1px)}.ds-btn-primary:focus-visible{outline:3px solid rgba(47,92,255,.38);outline-offset:2px}"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "Searches project names and folder slugs.",
+      "html": "<label class=\"ds-search\"><span>Search projects</span><input type=\"search\" placeholder=\"Project name or folder\"></label>",
+      "css": ".ds-search{display:grid;gap:7px;color:#171915;font:600 12px/1.2 Inter,ui-sans-serif,sans-serif}.ds-search input{min-height:44px;padding:10px 14px;border:1px solid #d7d5ce;border-radius:var(--radius,8px);background:#fbfaf7;color:#171915;font:400 16px/1.4 Inter,ui-sans-serif,sans-serif}.ds-search input:focus-visible{outline:3px solid rgba(47,92,255,.38);outline-offset:2px;border-color:#2f5cff}.ds-search input:disabled{opacity:.55}"
+    },
+    {
+      "name": "Page Tab",
+      "kind": "nav",
+      "description": "Moves between direct HTML pages in a project.",
+      "html": "<nav class=\"ds-tabs\" aria-label=\"Project pages\"><button aria-selected=\"true\">Home</button><button aria-selected=\"false\">About</button></nav>",
+      "css": ".ds-tabs{display:flex;min-height:44px;border-bottom:1px solid #d7d5ce}.ds-tabs button{position:relative;min-height:44px;padding:0 14px;border:0;background:transparent;color:#666961;font:600 13px/1 Inter,ui-sans-serif,sans-serif;cursor:pointer}.ds-tabs button[aria-selected=true]{color:#171915}.ds-tabs button[aria-selected=true]::after{content:\"\";position:absolute;right:12px;bottom:-1px;left:12px;height:2px;background:#2f5cff}.ds-tabs button:focus-visible{outline:3px solid rgba(47,92,255,.38);outline-offset:-3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Working Index",
+    "overview": "A calm design archive made from paper-toned surfaces, sharp black type, restrained blue signals, and fine rules. Product hierarchy and predictability outrank spectacle, and the active preview remains dominant.",
+    "keyCharacteristics": [
+      "Paper-toned flat surfaces with carbon-black type",
+      "Blue reserved for current selection, focus, and primary actions",
+      "Large editorial headings paired with compact monospaced metadata",
+      "Hairline rules and whitespace instead of nested containers",
+      "Familiar controls with complete keyboard and responsive behavior"
+    ],
+    "rules": [
+      {
+        "name": "The One Signal Rule",
+        "body": "Signal Blue is the only decorative accent and occupies less than ten percent of a screen.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Voices Rule",
+        "body": "Sans explains the interface; mono reports the filesystem.",
+        "section": "typography"
+      },
+      {
+        "name": "The Structural Shadow Rule",
+        "body": "If an element does not physically float above scrolling content, it does not receive a shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep the preview as the largest and highest-contrast working object.",
+      "Do use Signal Blue only for actions, selection, focus, and state.",
+      "Do derive spacing, type, and radius from the shared tweak-token contract."
+    ],
+    "donts": [
+      "Don't make this look like a generic SaaS dashboard.",
+      "Don't use decorative purple or multicolor gradients.",
+      "Don't use glassmorphism, floating 3D objects, or decorative blobs.",
+      "Don't wrap every project, page, and toolbar in rounded cards."
+    ]
+  }
+}

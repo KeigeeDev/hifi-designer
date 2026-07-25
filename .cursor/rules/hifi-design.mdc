@@ -1,0 +1,25 @@
+---
+description: Generate high-fidelity visual designs as standalone HTML from a short brief. Apply whenever the user wants to design or mock up a web page, landing page, hero section, or UI as rendered HTML — including exploring aesthetic directions, requesting design variations, building a "hifi"/high-fidelity mockup, or turning a design brief into something they can look at. Triggers on "design me a landing page", "mock up a hero", "give me a few design directions", "make this look premium", "hifi design".
+globs:
+alwaysApply: false
+---
+
+# Hi-Fi Design Generator (Cursor rule)
+
+This is an **Agent-Requested** rule: `alwaysApply: false` means Cursor pulls it in
+only when the task matches the `description` above, so it stays out of unrelated
+prompts — the same on-demand behavior as a Claude skill.
+
+When this rule fires, follow the full workflow in the referenced files. Do not
+improvise a shortcut — the discipline (tight brief → wide net → refine → tweaks bar)
+is the point.
+
+- Follow the workflow in @docs/hifi-design.md end to end.
+- Read @docs/design-quality.md before generating the first design — it is the
+  anti-slop guardrail layer.
+- Embed @docs/tweaks-bar.html in every refinement-stage output (Steps 3–4).
+
+**Non-negotiables:** standalone HTML (all CSS/JS inline, no build step, CDN
+fonts/icons only); token-first (`--accent`, `--font-scale`, `--space-scale`,
+`--radius` on `:root`); real copy, never lorem ipsum; collect all four brief inputs
+before generating.

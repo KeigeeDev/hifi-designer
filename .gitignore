@@ -1,0 +1,13 @@
+# Personal project designs stay local.
+projects/*
+!projects/.gitkeep
+
+# Generated catalog embeds the complete contents of local project pages.
+hifi-designer-workspace.html
+
+# Local configuration and operating-system artifacts.
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,170 @@
+<!--
+============================================================================
+  TWEAKS BAR — drop-in live design controls
+============================================================================
+
+WHAT IT IS
+  A small floating panel that lets the user adjust the design live in the
+  browser: accent color, type scale, spacing scale, and corner radius. It
+  updates CSS custom properties on :root, so the whole page responds in real
+  time. This replaces re-prompting for taste decisions.
+
+TOKEN CONTRACT — the design MUST use these custom properties for the bar to work
+  Define these on :root and actually USE them throughout the design:
+
+    :root {
+      --accent: #e0483d;        /* the one accent color            */
+      --font-scale: 1;          /* multiplier on all type sizes    */
+      --space-scale: 1;         /* multiplier on all spacing        */
+      --radius: 10px;           /* base corner radius               */
+    }
+
+  Then derive real values from the scale multipliers so the sliders bite, e.g.:
+
+    :root {
+      --step: 1.25;                                   /* modular scale ratio */
+      --text-base: calc(1rem * var(--font-scale));
+      --text-lg:   calc(var(--text-base) * var(--step));
+      --text-xl:   calc(var(--text-lg)   * var(--step));
+      --text-2xl:  calc(var(--text-xl)   * var(--step));
+      --space-unit: calc(8px * var(--space-scale));
+      --space-2: calc(var(--space-unit) * 2);
+      --space-4: calc(var(--space-unit) * 4);
+      --space-8: calc(var(--space-unit) * 8);
+    }
+
+  Use var(--accent), var(--text-*), var(--space-*), and var(--radius) everywhere
+  instead of hardcoded values. If the design hardcodes sizes, the sliders won't
+  do anything.
+
+HOW TO USE
+  Paste this whole block just before </body>. No other wiring needed. It reads
+  the page's starting values on load, so the controls begin where your design is.
+  The bar is marked data-tweaks-bar and lives in its own namespace, so to export
+  a clean file just delete this block.
+============================================================================
+-->
+<div data-tweaks-bar>
+  <style>
+    [data-tweaks-bar]{
+      position:fixed; left:50%; bottom:20px; transform:translateX(-50%);
+      z-index:2147483647; font-family:ui-sans-serif,system-ui,sans-serif;
+      color:#111; --tb-bg:rgba(255,255,255,.86);
+    }
+    [data-tweaks-bar] *{box-sizing:border-box;}
+    .tb-panel{
+      display:flex; align-items:center; gap:18px;
+      background:var(--tb-bg); backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      border:1px solid rgba(0,0,0,.10); border-radius:14px;
+      padding:12px 16px; box-shadow:0 8px 30px rgba(0,0,0,.16);
+      transition:opacity .2s ease, transform .2s ease;
+    }
+    [data-tweaks-bar].tb-collapsed .tb-panel{display:none;}
+    .tb-ctrl{display:flex; flex-direction:column; gap:5px; min-width:104px;}
+    .tb-ctrl label{
+      font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+      color:#666; font-weight:600;
+    }
+    .tb-ctrl .tb-val{color:#111; font-variant-numeric:tabular-nums;}
+    .tb-ctrl input[type=range]{width:100%; accent-color:#111; cursor:pointer;}
+    .tb-ctrl input[type=color]{
+      width:38px; height:26px; padding:0; border:1px solid rgba(0,0,0,.15);
+      border-radius:6px; background:none; cursor:pointer;
+    }
+    .tb-color-row{display:flex; align-items:center; gap:8px;}
+    .tb-color-row code{font-size:11px; color:#444; font-variant-numeric:tabular-nums;}
+    .tb-actions{display:flex; gap:8px; padding-left:6px; border-left:1px solid rgba(0,0,0,.10);}
+    .tb-btn{
+      font-size:12px; font-weight:600; padding:7px 11px; border-radius:9px;
+      border:1px solid rgba(0,0,0,.14); background:#fff; color:#111; cursor:pointer;
+      white-space:nowrap;
+    }
+    .tb-btn:hover{background:#f4f4f4;}
+    .tb-toggle{
+      position:absolute; right:-6px; top:-14px; width:28px; height:28px;
+      border-radius:50%; border:1px solid rgba(0,0,0,.14); background:#fff;
+      cursor:pointer; font-size:13px; line-height:1; box-shadow:0 3px 10px rgba(0,0,0,.14);
+    }
+    @media (max-width:640px){
+      .tb-panel{flex-wrap:wrap; gap:12px; max-width:calc(100vw - 24px);}
+      .tb-ctrl{min-width:88px;}
+    }
+    @media (prefers-color-scheme:dark){
+      [data-tweaks-bar]{--tb-bg:rgba(28,28,30,.86); color:#f2f2f2;}
+      [data-tweaks-bar] .tb-ctrl label{color:#aaa;}
+      [data-tweaks-bar] .tb-ctrl .tb-val,[data-tweaks-bar] .tb-color-row code{color:#ddd;}
+      [data-tweaks-bar] .tb-btn,[data-tweaks-bar] .tb-toggle{background:#2c2c2e; color:#f2f2f2; border-color:rgba(255,255,255,.16);}
+      [data-tweaks-bar] .tb-btn:hover{background:#3a3a3c;}
+    }
+  </style>
+
+  <button class="tb-toggle" data-tb-toggle title="Show / hide tweaks">–</button>
+  <div class="tb-panel">
+    <div class="tb-ctrl">
+      <label>Accent</label>
+      <div class="tb-color-row">
+        <input type="color" data-tb="accent">
+        <code data-tb-out="accent">#000000</code>
+      </div>
+    </div>
+    <div class="tb-ctrl">
+      <label>Type <span class="tb-val" data-tb-out="font">1.00×</span></label>
+      <input type="range" data-tb="font" min="0.8" max="1.4" step="0.01" value="1">
+    </div>
+    <div class="tb-ctrl">
+      <label>Spacing <span class="tb-val" data-tb-out="space">1.00×</span></label>
+      <input type="range" data-tb="space" min="0.7" max="1.6" step="0.01" value="1">
+    </div>
+    <div class="tb-ctrl">
+      <label>Radius <span class="tb-val" data-tb-out="radius">10px</span></label>
+      <input type="range" data-tb="radius" min="0" max="28" step="1" value="10">
+    </div>
+    <div class="tb-actions">
+      <button class="tb-btn" data-tb-copy>Copy values</button>
+      <button class="tb-btn" data-tb-reset>Reset</button>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    var root = document.documentElement, bar = document.currentScript.closest('[data-tweaks-bar]');
+    var css = function(n){ return getComputedStyle(root).getPropertyValue(n).trim(); };
+    function toHex(c){
+      if(!c) return '#000000';
+      if(c[0]==='#') return c.length===4 ? '#'+c[1]+c[1]+c[2]+c[2]+c[3]+c[3] : c;
+      var m = c.match(/\d+/g); if(!m) return '#000000';
+      return '#'+m.slice(0,3).map(function(x){return ('0'+parseInt(x).toString(16)).slice(-2);}).join('');
+    }
+    var initial = {
+      accent: toHex(css('--accent') || '#111111'),
+      font:   parseFloat(css('--font-scale'))  || 1,
+      space:  parseFloat(css('--space-scale')) || 1,
+      radius: parseInt(css('--radius'))        || 10
+    };
+    var q = function(s){ return bar.querySelector(s); };
+    var out = function(k){ return bar.querySelector('[data-tb-out="'+k+'"]'); };
+    function apply(k,v){
+      if(k==='accent'){ root.style.setProperty('--accent', v); out('accent').textContent = v; q('[data-tb="accent"]').value = v; }
+      if(k==='font'){ root.style.setProperty('--font-scale', v); out('font').textContent = (+v).toFixed(2)+'×'; q('[data-tb="font"]').value = v; }
+      if(k==='space'){ root.style.setProperty('--space-scale', v); out('space').textContent = (+v).toFixed(2)+'×'; q('[data-tb="space"]').value = v; }
+      if(k==='radius'){ root.style.setProperty('--radius', v+'px'); out('radius').textContent = v+'px'; q('[data-tb="radius"]').value = v; }
+    }
+    Object.keys(initial).forEach(function(k){ apply(k, initial[k]); });
+    q('[data-tb="accent"]').addEventListener('input', function(e){ apply('accent', e.target.value); });
+    ['font','space','radius'].forEach(function(k){
+      q('[data-tb="'+k+'"]').addEventListener('input', function(e){ apply(k, e.target.value); });
+    });
+    q('[data-tb-reset]').addEventListener('click', function(){ Object.keys(initial).forEach(function(k){ apply(k, initial[k]); }); });
+    q('[data-tb-copy]').addEventListener('click', function(e){
+      var text = '--accent: '+css('--accent')+';\n--font-scale: '+css('--font-scale')+';\n--space-scale: '+css('--space-scale')+';\n--radius: '+css('--radius')+';';
+      navigator.clipboard && navigator.clipboard.writeText(text);
+      var b = e.target, t = b.textContent; b.textContent = 'Copied ✓'; setTimeout(function(){ b.textContent = t; }, 1200);
+    });
+    q('[data-tb-toggle]').addEventListener('click', function(e){
+      bar.classList.toggle('tb-collapsed');
+      e.target.textContent = bar.classList.contains('tb-collapsed') ? '+' : '–';
+    });
+  })();
+  </script>
+</div>
