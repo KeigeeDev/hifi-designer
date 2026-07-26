@@ -928,34 +928,110 @@
         style.textContent = "[data-tweaks-bar]{display:none!important}";
         (doc.head || doc.documentElement).append(style);
       }
+      if (!doc.documentElement.hasAttribute("data-workspace-fragment-bridge")) {
+        doc.documentElement.setAttribute("data-workspace-fragment-bridge", "");
+        doc.addEventListener("click", event => {
+          const link = event.target.closest?.('a[href^="#"]');
+          const href = link?.getAttribute("href");
+          if (!href || href === "#") return;
+          let target;
+          try {
+            target = doc.getElementById(decodeURIComponent(href.slice(1)));
+          } catch {
+            return;
+          }
+          if (!target) return;
+          event.preventDefault();
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+          try {
+            doc.defaultView.history.replaceState(null, "", href);
+          } catch {}
+        });
+      }
     }
 
-    function buildCleanHtml(source) {
-      const doc = new DOMParser().parseFromString(source, "text/html");
+    function readBlobAsDataUrl(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.addEventListener("load", () => resolve(reader.result));
+        reader.addEventListener("error", () => reject(reader.error));
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    function optimizeEmbeddedImage(dataUrl) {
+      return new Promise(resolve => {
+        const image = new Image();
+        image.addEventListener("error", () => resolve(dataUrl));
+        image.addEventListener("load", () => {
+          const scale = Math.min(1, 1920 / Math.max(image.naturalWidth, image.naturalHeight));
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+          canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+          const context = canvas.getContext("2d");
+          if (!context) return resolve(dataUrl);
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(async blob => {
+            const originalBytes = Math.ceil((dataUrl.length - dataUrl.indexOf(",") - 1) * .75);
+            if (!blob || blob.size >= originalBytes) return resolve(dataUrl);
+            try {
+              resolve(await readBlobAsDataUrl(blob));
+            } catch {
+              resolve(dataUrl);
+            }
+          }, "image/webp", .72);
+        });
+        image.src = dataUrl;
+      });
+    }
+
+    async function optimizeEmbeddedImages(source) {
+      const matches = source.match(/data:image\/(?:avif|jpe?g|png|webp);base64,[a-z0-9+/=]+/gi) || [];
+      const images = [...new Set(matches)];
+      let optimized = source;
+      for (const dataUrl of images) {
+        const replacement = await optimizeEmbeddedImage(dataUrl);
+        if (replacement !== dataUrl) optimized = optimized.split(dataUrl).join(replacement);
+      }
+      return optimized;
+    }
+
+    async function buildCleanHtml(source) {
+      const optimizedSource = await optimizeEmbeddedImages(source);
+      const doc = new DOMParser().parseFromString(optimizedSource, "text/html");
       doc.querySelectorAll("[data-tweaks-bar], [data-workspace-tweak-bridge]")
         .forEach(node => node.remove());
+      doc.documentElement.removeAttribute("data-workspace-fragment-bridge");
       applyTweaksToRoot(doc.documentElement);
       return `<!doctype html>\n${doc.documentElement.outerHTML}`;
     }
 
-    function exportCurrentPage(button) {
+    async function exportCurrentPage(button) {
       const page = currentPage();
       if (!page?.content) return;
-      const html = buildCleanHtml(decodeHtml(page.content));
-      const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      const baseName = page.sourceLabel.replace(/\.html?$/i, "").replace(/-final$/i, "");
-      link.href = url;
-      link.download = `${baseName}-final.html`;
-      document.body.append(link);
-      link.click();
-      link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 0);
-
       const original = button.textContent;
-      button.textContent = "Exported ✓";
-      setTimeout(() => { button.textContent = original; }, 1200);
+      button.disabled = true;
+      button.textContent = "Optimizing…";
+      try {
+        const html = await buildCleanHtml(decodeHtml(page.content));
+        const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const baseName = page.sourceLabel.replace(/\.html?$/i, "").replace(/-final$/i, "");
+        link.href = url;
+        link.download = `${baseName}-final.html`;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+        button.textContent = `Exported ${Math.max(1, Math.round(blob.size / 1024))} KB ✓`;
+      } catch {
+        button.textContent = "Export failed";
+      }
+      setTimeout(() => {
+        button.disabled = false;
+        button.textContent = original;
+      }, 1800);
     }
 
     function initializeTweaks() {

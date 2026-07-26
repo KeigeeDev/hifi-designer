@@ -127,10 +127,11 @@ for revisions, apply them to the chosen file, rebuild the workspace, and return 
 this decision gate. If the user asks to export:
 
 1. Bake the accepted token values and any requested revisions into the document.
-2. Remove the complete `[data-tweaks-bar]` block and any workspace-only tweak bridge.
-3. Save a clearly named final file, such as `<page-name>-final.html`, beside the other
+2. Optimize embedded raster images without introducing external asset dependencies.
+3. Remove the complete `[data-tweaks-bar]` block and any workspace-only tweak bridge.
+4. Save a clearly named final file, such as `<page-name>-final.html`, beside the other
    project files in `projects/<project-name>/`.
-4. Confirm the exact export path and rebuild the workspace.
+5. Confirm the exact export path and rebuild the workspace.
 
 The user may also download the active page directly from the tweaks bar. That browser
 export follows the same rules: current token values are embedded, design controls are

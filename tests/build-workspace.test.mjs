@@ -168,14 +168,30 @@ test("workspace exports the active page as clean standalone HTML", async () => {
   );
 
   assert.match(template, /data-tb-export[^>]*>Export HTML</);
-  assert.match(template, /function buildCleanHtml\(source\)/);
-  assert.match(template, /function exportCurrentPage\(button\)/);
+  assert.match(template, /async function buildCleanHtml\(source\)/);
+  assert.match(template, /async function exportCurrentPage\(button\)/);
   assert.match(
     template,
     /querySelectorAll\("\[data-tweaks-bar\], \[data-workspace-tweak-bridge\]"\)/,
   );
   assert.match(template, /applyTweaksToRoot\(doc\.documentElement\)/);
+  assert.match(template, /optimizeEmbeddedImages\(source\)/);
+  assert.match(template, /canvas\.toBlob\(async blob =>/);
+  assert.match(template, /"image\/webp", \.72/);
   assert.match(template, /link\.download = `\$\{baseName\}-final\.html`/);
+});
+
+test("workspace preview keeps fragment links inside the active page", async () => {
+  const template = await readFile(
+    new URL("../workspace.template.html", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(template, /iframe\.srcdoc = decodeHtml\(page\.content\)/);
+  assert.match(template, /data-workspace-fragment-bridge/);
+  assert.match(template, /event\.target\.closest\?\.\('a\[href\^="#"\]'\)/);
+  assert.match(template, /target\.scrollIntoView\(\{ behavior: "smooth", block: "start" \}\)/);
+  assert.match(template, /event\.preventDefault\(\)/);
 });
 
 test("drop-in tweaks bar can export its own clean final HTML", async () => {
@@ -187,5 +203,8 @@ test("drop-in tweaks bar can export its own clean final HTML", async () => {
   assert.match(tweaksBar, /data-tb-export>Export HTML</);
   assert.match(tweaksBar, /clone\.querySelectorAll\('\[data-tweaks-bar\],\[data-workspace-tweak-bridge\]'\)/);
   assert.match(tweaksBar, /clone\.style\.setProperty\('--accent', css\('--accent'\)\)/);
+  assert.match(tweaksBar, /async function optimizeImages\(source\)/);
+  assert.match(tweaksBar, /canvas\.toBlob\(async function\(blob\)/);
+  assert.match(tweaksBar, /'image\/webp',\.72/);
   assert.match(tweaksBar, /'-final\.html'/);
 });
