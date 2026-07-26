@@ -15,8 +15,8 @@ the filesystem by hand.
 The Local Hi-Fi Project Browser scans the repository's `projects/` directory, builds
 a portable catalog, and lets the designer open every project page in one review
 surface. Success means finding a project quickly, moving between its pages, comparing
-responsive behavior at known widths, and tuning shared design tokens without leaving
-the workspace.
+responsive behavior at known widths, tuning shared design tokens without leaving the
+workspace, and exporting the accepted page as clean standalone HTML.
 
 ## Brand Personality
 
@@ -42,6 +42,8 @@ navigation that makes standard actions harder to recognize.
    recognizable product patterns.
 5. Work locally by default. The catalog remains portable, dependency-free, and useful
    without a server or account.
+6. Make the handoff explicit. A finished refinement ends with a clear choice between
+   another revision and a clean export with review controls removed.
 
 ## Accessibility & Inclusion
 

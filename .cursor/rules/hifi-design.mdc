@@ -18,6 +18,8 @@ is the point.
 - Read @docs/design-quality.md before generating the first design — it is the
   anti-slop guardrail layer.
 - Embed @docs/tweaks-bar.html in every refinement-stage output (Steps 3–4).
+- After fine-tuning, use the Step 5 handoff: ask whether to export clean standalone
+  HTML or apply another round of revisions.
 
 **Non-negotiables:** standalone HTML (all CSS/JS inline, no build step, CDN
 fonts/icons only); token-first (`--accent`, `--font-scale`, `--space-scale`,

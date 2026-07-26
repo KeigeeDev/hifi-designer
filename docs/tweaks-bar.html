@@ -40,8 +40,9 @@ TOKEN CONTRACT — the design MUST use these custom properties for the bar to wo
 HOW TO USE
   Paste this whole block just before </body>. No other wiring needed. It reads
   the page's starting values on load, so the controls begin where your design is.
-  The bar is marked data-tweaks-bar and lives in its own namespace, so to export
-  a clean file just delete this block.
+  The bar is marked data-tweaks-bar and lives in its own namespace. "Export HTML"
+  downloads a clean copy with the current token values baked in and this block
+  removed.
 ============================================================================
 -->
 <div data-tweaks-bar>
@@ -122,6 +123,7 @@ HOW TO USE
     </div>
     <div class="tb-actions">
       <button class="tb-btn" data-tb-copy>Copy values</button>
+      <button class="tb-btn" data-tb-export>Export HTML</button>
       <button class="tb-btn" data-tb-reset>Reset</button>
     </div>
   </div>
@@ -160,6 +162,23 @@ HOW TO USE
       var text = '--accent: '+css('--accent')+';\n--font-scale: '+css('--font-scale')+';\n--space-scale: '+css('--space-scale')+';\n--radius: '+css('--radius')+';';
       navigator.clipboard && navigator.clipboard.writeText(text);
       var b = e.target, t = b.textContent; b.textContent = 'Copied ✓'; setTimeout(function(){ b.textContent = t; }, 1200);
+    });
+    q('[data-tb-export]').addEventListener('click', function(e){
+      var clone = document.documentElement.cloneNode(true);
+      clone.querySelectorAll('[data-tweaks-bar],[data-workspace-tweak-bridge]').forEach(function(node){ node.remove(); });
+      clone.style.setProperty('--accent', css('--accent'));
+      clone.style.setProperty('--font-scale', css('--font-scale'));
+      clone.style.setProperty('--space-scale', css('--space-scale'));
+      clone.style.setProperty('--radius', css('--radius'));
+      var html = '<!doctype html>\n' + clone.outerHTML;
+      var blob = new Blob([html], {type:'text/html;charset=utf-8'});
+      var url = URL.createObjectURL(blob), link = document.createElement('a');
+      var source = decodeURIComponent(location.pathname.split('/').pop() || 'design.html');
+      link.href = url;
+      link.download = source.replace(/\.html?$/i, '') + '-final.html';
+      document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 0);
+      var b = e.currentTarget, t = b.textContent; b.textContent = 'Exported ✓'; setTimeout(function(){ b.textContent = t; }, 1200);
     });
     q('[data-tb-toggle]').addEventListener('click', function(e){
       bar.classList.toggle('tb-collapsed');

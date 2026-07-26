@@ -160,3 +160,32 @@ test("root workspace keeps design tweaks out of the project library", async () =
     );
   }
 });
+
+test("workspace exports the active page as clean standalone HTML", async () => {
+  const template = await readFile(
+    new URL("../workspace.template.html", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(template, /data-tb-export[^>]*>Export HTML</);
+  assert.match(template, /function buildCleanHtml\(source\)/);
+  assert.match(template, /function exportCurrentPage\(button\)/);
+  assert.match(
+    template,
+    /querySelectorAll\("\[data-tweaks-bar\], \[data-workspace-tweak-bridge\]"\)/,
+  );
+  assert.match(template, /applyTweaksToRoot\(doc\.documentElement\)/);
+  assert.match(template, /link\.download = `\$\{baseName\}-final\.html`/);
+});
+
+test("drop-in tweaks bar can export its own clean final HTML", async () => {
+  const tweaksBar = await readFile(
+    new URL("../docs/tweaks-bar.html", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(tweaksBar, /data-tb-export>Export HTML</);
+  assert.match(tweaksBar, /clone\.querySelectorAll\('\[data-tweaks-bar\],\[data-workspace-tweak-bridge\]'\)/);
+  assert.match(tweaksBar, /clone\.style\.setProperty\('--accent', css\('--accent'\)\)/);
+  assert.match(tweaksBar, /'-final\.html'/);
+});

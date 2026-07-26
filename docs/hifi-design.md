@@ -19,6 +19,8 @@ committing.
 3. **Choose and refine** — user picks one; produce ~3 sub-variations, then fine-tune.
 4. **Ship with a tweaks bar** — every refinement-stage file carries an in-page panel
    for live adjustment.
+5. **Offer the handoff** — after the chosen direction has been fine-tuned, ask whether
+   the user wants another revision or a clean standalone HTML export.
 
 Move through these in order, but stay flexible — if the user arrives with a fully
 formed brief, go straight to the wide net.
@@ -106,8 +108,33 @@ token-first, then drop in the bar.
 (`--accent`, `--font-scale`, `--space-scale`, `--radius`). Paste it before `</body>`,
 make sure the page's tokens follow that contract, and it works with no per-file
 wiring. The bar is collapsible, marked `data-tweaks-bar` so it's trivial to strip for
-a clean export, and includes a "Copy values" button so the user can lock in what they
-tuned.
+a clean export. It includes a "Copy values" button so the user can lock in what they
+tuned and an "Export HTML" button that downloads the current page with those values
+baked in and the tweaks bar removed.
+
+---
+
+## Step 5 — Offer revisions or export
+
+After the user has chosen a final direction and completed a round of fine-tuning,
+pause at an explicit decision gate. Ask:
+
+> Would you like me to export the clean standalone HTML, or apply another round of
+> revisions?
+
+Do not silently treat a refinement file as the final deliverable. If the user asks
+for revisions, apply them to the chosen file, rebuild the workspace, and return to
+this decision gate. If the user asks to export:
+
+1. Bake the accepted token values and any requested revisions into the document.
+2. Remove the complete `[data-tweaks-bar]` block and any workspace-only tweak bridge.
+3. Save a clearly named final file, such as `<page-name>-final.html`, beside the other
+   project files in `projects/<project-name>/`.
+4. Confirm the exact export path and rebuild the workspace.
+
+The user may also download the active page directly from the tweaks bar. That browser
+export follows the same rules: current token values are embedded, design controls are
+removed, and the result remains one standalone `.html` file.
 
 ---
 
@@ -122,6 +149,8 @@ tuned.
 - **Responsive.** It should hold up from mobile to wide desktop, not just at one width.
 - **Tweaks bar** on every refinement-stage output (Steps 3–4), not on the Step 2
   contact sheet.
+- **Clean final export.** Final files have accepted adjustments baked in and contain
+  no tweaks bar or workspace-only controls.
 
 ## Companion files
 

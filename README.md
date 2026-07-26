@@ -81,7 +81,9 @@ Then open
 the root `hifi-designer-workspace.html` in a browser. The catalog embeds every direct
 project HTML file and supports fit/desktop/tablet/mobile preview widths. The tweaks
 dock appears only while viewing a project page and applies only to that active
-preview. Nested HTML files, hidden folders, and empty folders are excluded.
+preview. Use **Export HTML** in the dock to download the active page with the current
+token adjustments baked in and all tweak controls removed. Nested HTML files, hidden
+folders, and empty folders are excluded.
 
 To rebuild, serve, and open the workspace in one step, run:
 

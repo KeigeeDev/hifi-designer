@@ -18,6 +18,9 @@ build a high-fidelity mockup:
    no lorem ipsum, etc.).
 3. Embed `docs/tweaks-bar.html` in every refinement-stage output so the user can tune
    type, color, and spacing live.
+4. After the chosen direction has been adjusted, ask whether the user wants a clean
+   standalone HTML export or another round of revisions. Follow the Step 5 handoff in
+   `docs/hifi-design.md`.
 
 **Non-negotiables for design output:**
 - Standalone HTML — all CSS/JS inline, no build step, CDN fonts/icons only.

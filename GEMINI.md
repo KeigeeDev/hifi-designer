@@ -18,6 +18,8 @@ high-fidelity mockup — follow the imported workflow:
 - Workflow: @docs/hifi-design.md
 - Anti-slop guardrails (read before generating): @docs/design-quality.md
 - Drop-in live-tuning bar (embed in every refinement output): @docs/tweaks-bar.html
+- Final handoff: after fine-tuning, ask whether to export clean standalone HTML or
+  apply another round of revisions, following Step 5 in @docs/hifi-design.md.
 
 **Non-negotiables for design output:**
 - Standalone HTML — all CSS/JS inline, no build step, CDN fonts/icons only.

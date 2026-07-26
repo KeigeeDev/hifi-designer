@@ -548,6 +548,8 @@
       cursor: pointer;
     }
     .tb-btn:hover { background: var(--paper); }
+    .tb-btn-primary { border-color: var(--ink); background: var(--ink); color: var(--white); }
+    .tb-btn-primary:hover { background: #30332c; }
     .tb-toggle {
       width: 30px;
       height: 30px;
@@ -642,6 +644,7 @@
               <div class="workflow-row"><span>01</span><strong>Choose project</strong><span>→</span></div>
               <div class="workflow-row"><span>02</span><strong>Browse pages</strong><span>→</span></div>
               <div class="workflow-row"><span>03</span><strong>Tune and review</strong><span>↗</span></div>
+              <div class="workflow-row"><span>04</span><strong>Export final HTML</strong><span>↓</span></div>
             </div>
           </section>
           <section aria-labelledby="projectsTitle">
@@ -715,7 +718,7 @@
         <div class="tb-ctrl"><label>Type <span class="tb-val" data-tb-out="font">1.00×</span></label><input type="range" data-tb="font" aria-label="Type scale" min="0.8" max="1.25" step="0.01" value="1"></div>
         <div class="tb-ctrl"><label>Spacing <span class="tb-val" data-tb-out="space">1.00×</span></label><input type="range" data-tb="space" aria-label="Spacing scale" min="0.7" max="1.4" step="0.01" value="1"></div>
         <div class="tb-ctrl"><label>Radius <span class="tb-val" data-tb-out="radius">10px</span></label><input type="range" data-tb="radius" aria-label="Corner radius" min="0" max="20" step="1" value="10"></div>
-        <div class="tb-actions"><button class="tb-btn" data-tb-copy type="button">Copy values</button><button class="tb-btn" data-tb-reset type="button">Reset</button></div>
+        <div class="tb-actions"><button class="tb-btn" data-tb-copy type="button">Copy values</button><button class="tb-btn tb-btn-primary" data-tb-export type="button">Export HTML</button><button class="tb-btn" data-tb-reset type="button">Reset</button></div>
       </div>
     </footer>
   </div>
@@ -927,6 +930,34 @@
       }
     }
 
+    function buildCleanHtml(source) {
+      const doc = new DOMParser().parseFromString(source, "text/html");
+      doc.querySelectorAll("[data-tweaks-bar], [data-workspace-tweak-bridge]")
+        .forEach(node => node.remove());
+      applyTweaksToRoot(doc.documentElement);
+      return `<!doctype html>\n${doc.documentElement.outerHTML}`;
+    }
+
+    function exportCurrentPage(button) {
+      const page = currentPage();
+      if (!page?.content) return;
+      const html = buildCleanHtml(decodeHtml(page.content));
+      const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const baseName = page.sourceLabel.replace(/\.html?$/i, "").replace(/-final$/i, "");
+      link.href = url;
+      link.download = `${baseName}-final.html`;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+
+      const original = button.textContent;
+      button.textContent = "Exported ✓";
+      setTimeout(() => { button.textContent = original; }, 1200);
+    }
+
     function initializeTweaks() {
       const dock = $("[data-tweaks-bar]");
       const query = selector => dock.querySelector(selector);
@@ -975,6 +1006,7 @@
         event.currentTarget.textContent = "Copied ✓";
         setTimeout(() => { event.currentTarget.textContent = original; }, 1200);
       });
+      query("[data-tb-export]").addEventListener("click", event => exportCurrentPage(event.currentTarget));
       query("[data-tb-toggle]").addEventListener("click", event => {
         dock.classList.toggle("tb-collapsed");
         event.currentTarget.textContent = dock.classList.contains("tb-collapsed") ? "+" : "−";
