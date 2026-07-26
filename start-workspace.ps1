@@ -5,7 +5,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 $workspaceRoot = $PSScriptRoot
-$dashboardUrl = "http://localhost:$Port/hifi-designer-workspace.html"
+$serverHost = "127.0.0.1"
+$dashboardUrl = "http://${serverHost}:$Port/hifi-designer-workspace.html"
 $serverProcess = $null
 
 function Open-DashboardInBrowser {
@@ -48,13 +49,14 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "Starting the workspace at $dashboardUrl"
 $serverProcess = Start-Process `
   -FilePath $pythonCommand.Source `
-  -ArgumentList @("-m", "http.server", "$Port", "--bind", "127.0.0.1") `
+  -ArgumentList @("-m", "http.server", "$Port", "--bind", $serverHost) `
   -WorkingDirectory $workspaceRoot `
   -NoNewWindow `
   -PassThru
 
 try {
   $ready = $false
+  $lastProbeError = $null
   for ($attempt = 0; $attempt -lt 40; $attempt++) {
     if ($serverProcess.HasExited) {
       throw "The local server stopped before it became ready. Port $Port may already be in use."
@@ -63,7 +65,7 @@ try {
     try {
       $response = Invoke-WebRequest `
         -Uri $dashboardUrl `
-        -Method Head `
+        -Method Get `
         -UseBasicParsing `
         -TimeoutSec 1
       if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 400) {
@@ -71,12 +73,14 @@ try {
         break
       }
     } catch {
+      $lastProbeError = $_.Exception.Message
       Start-Sleep -Milliseconds 250
     }
   }
 
   if (-not $ready) {
-    throw "The local server did not become ready at $dashboardUrl."
+    $details = if ($lastProbeError) { " Last probe error: $lastProbeError" } else { "" }
+    throw "The local server did not become ready at $dashboardUrl.$details"
   }
 
   Open-DashboardInBrowser -Url $dashboardUrl

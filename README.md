@@ -92,7 +92,7 @@ To rebuild, serve, and open the workspace in one step, run:
 .\start-workspace.cmd
 ```
 
-The default address is `http://localhost:8080/hifi-designer-workspace.html`. Pass a
+The default address is `http://127.0.0.1:8080/hifi-designer-workspace.html`. Pass a
 different port when needed, for example `.\start-workspace.cmd -Port 3000`. The
 wrapper calls `start-workspace.ps1` with a temporary execution-policy bypass. Keep
 the terminal open and press `Ctrl+C` to stop the server.
