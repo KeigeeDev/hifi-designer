@@ -182,6 +182,23 @@ expanded and a compact toggle when collapsed. It controls Accent, Type, Spacing,
 Radius for the active preview only. Its reserved layout space prevents it from
 covering review content.
 
+### Agent Status and Project Brief
+
+The top bar pairs compact ChatGPT and Claude subscription indicators with one primary
+**New project** action. Connection state uses text plus a status dot; it never
+displays an email, workspace identifier, token, or account detail. The project brief
+uses a single focused dialog with visible labels, provider and model selection, field
+guidance, and a linear reading order. The progress surface repeats the pinned provider
+and model so the execution choice remains visible.
+
+### Generation Progress
+
+Agent work appears in a restrained modal status sheet. It reports only safe lifecycle
+events—queued, generating, validating, publishing, ready, failed, or cancelled. It
+does not surface chain-of-thought, shell commands, prompt contents, reference data, or
+authentication state. Active runs cannot be dismissed accidentally; cancellation is
+explicit.
+
 ## 6. Do's and Don'ts
 
 ### Do:

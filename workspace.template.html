@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="description" content="Browse and review local HTML design projects at desktop, tablet, and mobile widths.">
   <title>Hi-Fi Designer — Local Workspace</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f4f2ec'/%3E%3Cpath d='M7 7h11v18H7z' fill='%23171915'/%3E%3Cpath d='M21 7h4v18h-4z' fill='%232f5cff'/%3E%3C/svg%3E">
   <style>
     :root {
       color-scheme: light;
@@ -40,6 +41,7 @@
       --t-xl: calc(1.75rem * var(--font-scale));
       --t-display: calc(5.25rem * var(--font-scale));
       --ease-state: cubic-bezier(.22, 1, .36, 1);
+      --z-active-run: 9;
       --z-sticky: 10;
       --z-dock: 20;
     }
@@ -91,6 +93,9 @@
     .app-content { min-height: 0; overflow: hidden; }
     .library-view { height: 100%; overflow: auto; scrollbar-gutter: stable; }
     .topbar {
+      position: sticky;
+      z-index: var(--z-sticky);
+      top: 0;
       min-height: 68px;
       display: flex;
       align-items: center;
@@ -100,6 +105,41 @@
       border-bottom: 1px solid var(--line);
       background: var(--surface);
     }
+    .active-run-banner {
+      width: min(1160px, calc(100% - 2rem));
+      position: sticky;
+      z-index: var(--z-active-run);
+      top: calc(68px + var(--s3));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s4);
+      margin: var(--s3) auto 0;
+      padding: var(--s3) var(--s4);
+      border: 1px solid color-mix(in srgb, var(--accent) 34%, var(--line));
+      border-radius: calc(var(--radius) - 2px);
+      background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+    }
+    .active-run-summary {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+    }
+    .active-run-dot {
+      width: 10px;
+      height: 10px;
+      flex: none;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 12%, transparent);
+      animation: jobPulse 1.6s ease-in-out infinite;
+    }
+    .active-run-copy { min-width: 0; }
+    .active-run-copy strong, .active-run-copy span { display: block; overflow-wrap: anywhere; }
+    .active-run-copy strong { font-size: var(--t-sm); }
+    .active-run-copy span { margin-top: 2px; color: var(--muted); font-size: var(--t-xs); }
+    .active-run-banner .secondary-button { flex: none; min-height: 38px; }
     .brand { display: flex; align-items: center; gap: var(--s3); min-width: 0; }
     .brand-mark {
       width: 32px;
@@ -138,6 +178,55 @@
       background: var(--green);
       box-shadow: 0 0 0 4px rgba(23,113,82,.1);
     }
+    .topbar-actions, .viewer-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+    }
+    .provider-statuses { display: flex; align-items: center; gap: var(--s1); }
+    .agent-status {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s2);
+      padding: 0 var(--s3);
+      border: 1px solid transparent;
+      border-radius: calc(var(--radius) - 2px);
+      background: transparent;
+      color: var(--muted);
+      font: 600 var(--t-xs)/1 var(--mono);
+      cursor: pointer;
+    }
+    .agent-status:hover { border-color: var(--line); background: var(--paper); color: var(--ink); }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--line-strong);
+      box-shadow: 0 0 0 4px rgba(185,187,179,.14);
+    }
+    .agent-status[data-state="connected"] .status-dot { background: var(--green); box-shadow: 0 0 0 4px rgba(23,113,82,.1); }
+    .agent-status[data-state="disconnected"] .status-dot { background: var(--error); box-shadow: 0 0 0 4px rgba(165,61,50,.1); }
+    .primary-button, .secondary-button {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--s2);
+      padding: 0 var(--s4);
+      border: 1px solid var(--ink);
+      border-radius: calc(var(--radius) - 2px);
+      background: var(--ink);
+      color: var(--white);
+      font-size: var(--t-sm);
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .primary-button:hover { background: #30332c; }
+    .primary-button:disabled, .secondary-button:disabled { opacity: .48; cursor: not-allowed; }
+    .secondary-button { border-color: var(--line-strong); background: var(--white); color: var(--ink); }
+    .secondary-button:hover { background: var(--paper); }
+    .primary-button .icon, .secondary-button .icon { width: 16px; height: 16px; }
     .library {
       width: min(1160px, calc(100% - 2rem));
       margin-inline: auto;
@@ -397,6 +486,7 @@
     .viewer-project-copy strong { font-size: var(--t-sm); }
     .viewer-project-copy span { margin-top: var(--s1); color: var(--muted); font: 500 var(--t-xs)/1 var(--mono); }
     .viewer-context { color: var(--muted); font: 500 var(--t-xs)/1.4 var(--mono); text-align: right; }
+    .agent-action { min-height: 38px; }
     .page-row {
       min-height: 44px;
       display: flex;
@@ -576,7 +666,100 @@
       border: 0;
     }
 
+    /* Local agent dialogs */
+    .workspace-dialog {
+      width: min(760px, calc(100vw - 2rem));
+      max-height: min(88vh, 900px);
+      padding: 0;
+      overflow: auto;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: 0 24px 70px rgba(23,25,21,.2);
+    }
+    .workspace-dialog::backdrop { background: rgba(23,25,21,.52); }
+    .dialog-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--s4);
+      padding: var(--s6);
+      border-bottom: 1px solid var(--line);
+    }
+    .dialog-kicker { margin: 0 0 var(--s2); color: var(--accent); font: 650 var(--t-xs)/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .dialog-header h2 { margin: 0; font-size: var(--t-xl); line-height: 1.08; letter-spacing: -.025em; }
+    .dialog-header p:last-child { max-width: 58ch; margin: var(--s2) 0 0; color: var(--muted); }
+    .dialog-close {
+      width: 40px;
+      height: 40px;
+      flex: none;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--white);
+      color: var(--ink);
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+    .dialog-close:disabled { opacity: .38; cursor: not-allowed; }
+    .dialog-form, .job-body { padding: var(--s6); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); }
+    .field { display: grid; gap: var(--s2); }
+    .field-wide { grid-column: 1 / -1; }
+    .field label, .field-label { color: var(--ink); font-size: var(--t-sm); font-weight: 650; }
+    .field-hint { color: var(--muted); font-size: var(--t-xs); }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      min-height: 44px;
+      padding: var(--s3);
+      border: 1px solid var(--line-strong);
+      border-radius: calc(var(--radius) - 2px);
+      background: var(--white);
+      color: var(--ink);
+      font: inherit;
+    }
+    .field textarea { min-height: 104px; resize: vertical; }
+    .field input[type="file"] { padding: var(--s2); font-size: var(--t-sm); }
+    .dialog-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s4);
+      margin-top: var(--s6);
+      padding-top: var(--s4);
+      border-top: 1px solid var(--line);
+    }
+    .form-error { min-height: 1.4em; margin: 0; color: var(--error); font-size: var(--t-sm); }
+    .privacy-note { max-width: 46ch; margin: 0; color: var(--muted); font-size: var(--t-xs); }
+    .job-status {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      gap: var(--s4);
+      align-items: center;
+      padding: var(--s4);
+      border: 1px solid var(--line);
+      background: var(--white);
+    }
+    .job-indicator {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 50%;
+      color: var(--accent);
+      font: 650 var(--t-sm)/1 var(--mono);
+    }
+    .job-indicator[data-active="true"] { animation: jobPulse 1.6s ease-in-out infinite; }
+    @keyframes jobPulse { 50% { background: color-mix(in srgb, var(--accent) 8%, var(--white)); transform: scale(.94); } }
+    .job-status strong { display: block; }
+    .job-status p { margin: var(--s1) 0 0; color: var(--muted); font-size: var(--t-sm); }
+    .job-log { display: grid; gap: var(--s2); margin: var(--s4) 0 0; padding: 0; list-style: none; }
+    .job-log li { display: grid; grid-template-columns: 74px 1fr; gap: var(--s3); color: var(--muted); font-size: var(--t-xs); }
+    .job-log time { color: var(--faint); font-family: var(--mono); }
+
     @media (max-width: 820px) {
+      .snapshot { display: none; }
       .library-lead { grid-template-columns: 1fr; gap: var(--s8); }
       .workflow { max-width: 460px; }
       .project-card { grid-template-columns: 58px minmax(0, 1fr) 42px; }
@@ -585,7 +768,18 @@
     }
     @media (max-width: 640px) {
       .topbar { min-height: 60px; }
-      .brand-copy span, .snapshot span { display: none; }
+      .active-run-banner {
+        width: calc(100% - 1.25rem);
+        top: calc(60px + var(--s2));
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .active-run-banner .secondary-button { width: 100%; }
+      .brand-copy span, .agent-status span { display: none; }
+      .snapshot { display: none; }
+      .topbar-actions { gap: var(--s1); }
+      .agent-status { width: 40px; padding: 0; justify-content: center; }
+      .primary-button { padding-inline: var(--s3); }
       .library { width: min(100% - 1.25rem, 1160px); padding-top: var(--s12); }
       h1 { font-size: clamp(2.7rem, 15vw, 4.4rem); }
       .library-tools { align-items: stretch; flex-direction: column; }
@@ -607,6 +801,11 @@
       .tb-panel { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
       .tb-ctrl { min-width: 0; }
       .tb-actions { grid-column: 1 / -1; justify-content: flex-end; padding: var(--s2) 0 0; border-top: 1px solid var(--line); border-left: 0; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field-wide { grid-column: auto; }
+      .dialog-header, .dialog-form, .job-body { padding: var(--s4); }
+      .dialog-actions { align-items: stretch; flex-direction: column-reverse; }
+      .dialog-actions .primary-button, .dialog-actions .secondary-button { width: 100%; }
     }
     @media (pointer: coarse) {
       .device-button, .icon-button, .page-tab { min-height: 44px; }
@@ -630,8 +829,29 @@
             <span class="brand-mark" aria-hidden="true"></span>
             <span class="brand-copy"><strong>Hi-Fi Designer</strong><span>Local project browser</span></span>
           </div>
-          <div class="snapshot"><span id="snapshotLabel">Workspace snapshot</span></div>
+          <div class="topbar-actions">
+            <div class="snapshot"><span id="snapshotLabel">Workspace snapshot</span></div>
+            <div class="provider-statuses" aria-label="Agent subscriptions">
+              <button class="agent-status" id="codexStatusButton" type="button" data-provider="codex" data-state="checking" title="Check ChatGPT subscription connection">
+                <i class="status-dot" aria-hidden="true"></i><span id="codexStatusLabel">ChatGPT</span>
+              </button>
+              <button class="agent-status" id="claudeStatusButton" type="button" data-provider="claude" data-state="checking" title="Check Claude subscription connection">
+                <i class="status-dot" aria-hidden="true"></i><span id="claudeStatusLabel">Claude</span>
+              </button>
+            </div>
+            <button class="primary-button" id="newProjectButton" type="button" disabled>
+              <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
+              New project
+            </button>
+          </div>
         </header>
+        <section class="active-run-banner" id="activeRunBanner" aria-live="polite" hidden>
+          <div class="active-run-summary">
+            <i class="active-run-dot" aria-hidden="true"></i>
+            <div class="active-run-copy"><strong id="activeRunTitle">Generation in progress</strong><span id="activeRunMessage">Your project is being built. This can take several minutes.</span></div>
+          </div>
+          <button class="secondary-button" id="viewActiveJobButton" type="button">View generation progress</button>
+        </section>
         <main class="library">
           <section class="library-lead" aria-labelledby="libraryTitle">
             <div>
@@ -641,9 +861,9 @@
             </div>
             <div class="workflow" aria-label="Review workflow">
               <div class="workflow-visual" aria-hidden="true"><span class="workflow-sheet"></span><span class="workflow-sheet"></span><span class="workflow-sheet"></span></div>
-              <div class="workflow-row"><span>01</span><strong>Choose project</strong><span>→</span></div>
-              <div class="workflow-row"><span>02</span><strong>Browse pages</strong><span>→</span></div>
-              <div class="workflow-row"><span>03</span><strong>Tune and review</strong><span>↗</span></div>
+              <div class="workflow-row"><span>01</span><strong>Brief the agent</strong><span>→</span></div>
+              <div class="workflow-row"><span>02</span><strong>Review five directions</strong><span>→</span></div>
+              <div class="workflow-row"><span>03</span><strong>Choose and refine</strong><span>↗</span></div>
               <div class="workflow-row"><span>04</span><strong>Export final HTML</strong><span>↓</span></div>
             </div>
           </section>
@@ -673,7 +893,13 @@
               <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path></svg>
               <span class="viewer-project-copy"><strong id="viewerProjectName">Project</strong><span id="viewerProjectSlug">project-folder</span></span>
             </button>
-            <div class="viewer-context" id="viewerContext"></div>
+            <div class="viewer-controls">
+              <button class="secondary-button agent-action" id="agentActionButton" type="button" hidden>
+                <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"></path><circle cx="12" cy="12" r="4"></circle></svg>
+                Continue with agent
+              </button>
+              <div class="viewer-context" id="viewerContext"></div>
+            </div>
           </div>
           <div class="page-row">
             <span class="tabs-label">Pages</span>
@@ -703,7 +929,7 @@
           </div>
           <div class="preview-stage">
             <div class="preview-frame" id="previewFrame" data-device="fit">
-              <iframe id="previewFrameElement" title="Project page preview"></iframe>
+              <iframe id="previewFrameElement" title="Project page preview" sandbox="allow-scripts allow-forms allow-modals allow-downloads"></iframe>
               <div class="preview-unavailable" id="previewUnavailable" hidden><div><strong>Preview unavailable</strong>This page could not be decoded.</div></div>
             </div>
           </div>
@@ -723,9 +949,61 @@
     </footer>
   </div>
 
+  <dialog class="workspace-dialog" id="projectDialog" aria-labelledby="projectDialogTitle">
+    <div class="dialog-header">
+      <div><p class="dialog-kicker">New local project</p><h2 id="projectDialogTitle">Give the agent a complete brief.</h2><p>Choose a connected subscription and model, then provide all four design inputs.</p></div>
+      <button class="dialog-close" type="button" data-close-dialog="projectDialog" aria-label="Close">×</button>
+    </div>
+    <form class="dialog-form" id="projectForm">
+      <div class="form-grid">
+        <div class="field field-wide"><label for="projectName">Project name</label><input id="projectName" name="name" required maxlength="100" autocomplete="off" placeholder="Northstar analytics launch"></div>
+        <div class="field"><label for="projectProvider">Agent provider</label><select id="projectProvider" name="provider" required></select><span class="field-hint" id="projectProviderHint">Uses your existing local subscription.</span></div>
+        <div class="field"><label for="projectModel">Model</label><select id="projectModel" name="model" required></select><span class="field-hint" id="projectModelHint">Model access depends on your subscription.</span></div>
+        <div class="field field-wide"><label for="projectAesthetic">Aesthetic direction</label><textarea id="projectAesthetic" name="aesthetic" required maxlength="2500" placeholder="Editorial Swiss grid with an authoritative serif display face and compact technical annotations."></textarea><span class="field-hint">Name a specific design family rather than “clean and modern.”</span></div>
+        <div class="field field-wide"><label for="projectReferences">References</label><textarea id="projectReferences" name="references" required maxlength="5000" placeholder="Reference URLs, brands, screenshots, and the qualities to carry forward. Write “No references” if none."></textarea></div>
+        <div class="field"><label for="projectIntent">Intent</label><textarea id="projectIntent" name="intent" required maxlength="2500" placeholder="Launch page that explains the product and earns demo requests."></textarea></div>
+        <div class="field"><label for="projectAudience">Audience</label><textarea id="projectAudience" name="audience" required maxlength="1500" placeholder="Technical founders evaluating analytics infrastructure."></textarea></div>
+        <div class="field"><label for="projectPrimaryAction">Primary action</label><input id="projectPrimaryAction" name="primaryAction" required maxlength="1000" placeholder="Book a technical demo"></div>
+        <div class="field"><label for="projectImages">Reference screenshots</label><input id="projectImages" name="images" type="file" accept="image/png,image/jpeg,image/webp" multiple><span class="field-hint">Optional · up to 5 files · 5 MB each</span></div>
+        <div class="field field-wide"><label for="projectGuardrails">Guardrails</label><textarea id="projectGuardrails" name="guardrails" required maxlength="4000" placeholder="No gradients, glass panels, generic feature-card grids, or vague marketing copy."></textarea></div>
+      </div>
+      <div class="dialog-actions">
+        <p class="privacy-note">The service runs on localhost. Credentials remain in Codex or Claude Code and are never added to project files or browser data.</p>
+        <div><p class="form-error" id="projectFormError" role="alert"></p><button class="primary-button" id="createProjectSubmit" type="submit">Create and generate</button></div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="workspace-dialog" id="runDialog" aria-labelledby="runDialogTitle">
+    <div class="dialog-header">
+      <div><p class="dialog-kicker" id="runDialogKicker">Continue project</p><h2 id="runDialogTitle">Guide the next design stage.</h2><p id="runDialogDescription">Your feedback continues the same private agent session.</p></div>
+      <button class="dialog-close" type="button" data-close-dialog="runDialog" aria-label="Close">×</button>
+    </div>
+    <form class="dialog-form" id="runForm">
+      <div class="form-grid">
+        <div class="field field-wide" id="runActionField"><label for="runAction">Next action</label><select id="runAction" name="action"></select></div>
+        <div class="field field-wide" id="runSelectionField"><label for="runSelection" id="runSelectionLabel">Selected direction</label><input id="runSelection" name="selection" maxlength="500" placeholder="Direction 03 — Editorial Signal"></div>
+        <div class="field field-wide"><label for="runFeedback">What should the agent preserve or change?</label><textarea id="runFeedback" name="feedback" maxlength="4000" placeholder="Preserve the asymmetrical hero and restrained palette. Explore a tighter type scale and a more direct CTA."></textarea></div>
+      </div>
+      <div class="dialog-actions"><p class="form-error" id="runFormError" role="alert"></p><button class="primary-button" id="runSubmit" type="submit">Start next stage</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="workspace-dialog" id="jobDialog" aria-labelledby="jobDialogTitle">
+    <div class="dialog-header">
+      <div><p class="dialog-kicker" id="jobProviderLabel">Local agent run</p><h2 id="jobDialogTitle">Generating your design.</h2><p id="jobProjectLabel">The workspace will refresh automatically when the validated HTML is ready.</p></div>
+      <button class="dialog-close" id="jobDialogClose" type="button" aria-label="Close" disabled>×</button>
+    </div>
+    <div class="job-body">
+      <div class="job-status"><div class="job-indicator" id="jobIndicator" data-active="true">AI</div><div><strong id="jobStatusTitle">Queued</strong><p id="jobStatusMessage" role="status" aria-live="polite">Waiting for the local agent.</p></div></div>
+      <ol class="job-log" id="jobLog" aria-label="Generation progress"></ol>
+      <div class="dialog-actions"><p class="privacy-note">Only safe lifecycle messages are displayed. Agent reasoning, commands, and authentication data are not exposed to the browser.</p><button class="secondary-button" id="cancelJobButton" type="button">Cancel generation</button></div>
+    </div>
+  </dialog>
+
   <script>
-    const CATALOG = __HIFI_CATALOG__;
-    const state = { project: null, page: null, device: "fit" };
+    let CATALOG = __HIFI_CATALOG__;
+    const state = { project: null, page: null, device: "fit", apiAvailable: location.protocol === "http:" || location.protocol === "https:", providers: [], activeJobId: null, activeJob: null, activeJobStream: null, pendingProjectSlug: null, projectMetadata: null };
     const tweakState = { accent: "#2f5cff", font: 1, space: 1, radius: 10 };
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -745,6 +1023,331 @@
     };
     const currentProject = () => CATALOG.projects.find(project => project.slug === state.project);
     const currentPage = () => currentProject()?.pages.find(page => page.slug === state.page);
+
+    async function apiFetch(url, options = {}) {
+      if (!state.apiAvailable) throw new Error("Start the local workspace service to use agent features.");
+      const method = options.method || "GET";
+      const headers = { ...(options.headers || {}) };
+      if (method !== "GET") headers["X-Hifi-Request"] = "1";
+      if (options.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
+      const response = await fetch(url, { ...options, method, headers });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error(payload.error?.message || `Request failed (${response.status}).`);
+        error.code = payload.error?.code;
+        error.details = payload.error?.details;
+        throw error;
+      }
+      return payload;
+    }
+
+    function closeDialog(id) {
+      const dialog = document.getElementById(id);
+      if (dialog?.open) dialog.close();
+    }
+
+    const providerById = id => state.providers.find(provider => provider.id === id);
+    const providerDisplayName = id => providerById(id)?.name || (id === "claude" ? "Anthropic Claude" : "OpenAI Codex");
+
+    function configureModelPicker() {
+      const provider = providerById($("#projectProvider").value);
+      const modelSelect = $("#projectModel");
+      if (!provider) {
+        modelSelect.replaceChildren();
+        modelSelect.disabled = true;
+        return;
+      }
+      const prior = modelSelect.value;
+      modelSelect.innerHTML = provider.models.map(model => `<option value="${escapeHtml(model.id)}">${escapeHtml(model.name)}</option>`).join("");
+      modelSelect.value = provider.models.some(model => model.id === prior) ? prior : provider.defaultModel;
+      modelSelect.disabled = !provider.connected;
+      const selectedModel = provider.models.find(model => model.id === modelSelect.value);
+      $("#projectModelHint").textContent = selectedModel?.description || "Model access depends on your subscription.";
+      $("#projectProviderHint").textContent = provider.connected
+        ? `${provider.subscriptionLabel}${provider.plan ? ` · ${provider.plan.toUpperCase()}` : ""} connected. This choice is pinned to the project.`
+        : provider.reason || `Connect ${provider.subscriptionLabel} before generating.`;
+    }
+
+    function renderProviderControls() {
+      for (const provider of state.providers) {
+        const button = $(`#${provider.id}StatusButton`);
+        const label = $(`#${provider.id}StatusLabel`);
+        button.dataset.state = provider.connected ? "connected" : "disconnected";
+        label.textContent = provider.id === "codex" ? "ChatGPT" : `Claude${provider.plan ? ` ${provider.plan.toUpperCase()}` : ""}`;
+        button.title = provider.connected
+          ? `${provider.name} is connected with ${provider.subscriptionLabel}`
+          : `${provider.reason || `Connect ${provider.subscriptionLabel}`}`;
+      }
+      const select = $("#projectProvider");
+      const previous = select.value;
+      select.innerHTML = state.providers.map(provider => `<option value="${escapeHtml(provider.id)}" ${provider.connected ? "" : "disabled"}>${escapeHtml(provider.name)}${provider.connected ? "" : " · Not connected"}</option>`).join("");
+      const preferred = state.providers.find(provider => provider.id === previous && provider.connected)
+        || state.providers.find(provider => provider.connected);
+      if (preferred) select.value = preferred.id;
+      select.disabled = !preferred;
+      $("#newProjectButton").disabled = !preferred;
+      configureModelPicker();
+    }
+
+    async function checkProviderStatus() {
+      if (!state.apiAvailable) return;
+      try {
+        const status = await apiFetch("/api/status");
+        state.providers = status.providers || [];
+        renderProviderControls();
+        if (status.activeJobs?.length && !state.activeJobId) {
+          const job = status.activeJobs[0];
+          watchJob(job.id, job.projectSlug, job);
+        }
+      } catch {
+        state.apiAvailable = false;
+        state.providers = ["codex", "claude"].map(id => ({ id, connected: false, reason: "Local workspace service offline.", models: [] }));
+        renderProviderControls();
+      }
+    }
+
+    async function refreshCatalog() {
+      if (!state.apiAvailable) return;
+      const nextCatalog = await apiFetch("/api/catalog");
+      CATALOG = nextCatalog;
+      renderLibrary($("#projectSearch").value);
+      if (state.project) {
+        if (currentProject()) renderViewer();
+        else closeProject();
+      }
+    }
+
+    async function fileToReference(file) {
+      if (!/^image\/(?:png|jpeg|webp)$/.test(file.type)) throw new Error(`${file.name} is not a supported image type.`);
+      if (file.size > 5 * 1024 * 1024) throw new Error(`${file.name} is larger than 5 MB.`);
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      let binary = "";
+      for (let index = 0; index < bytes.length; index += 32768) {
+        binary += String.fromCharCode(...bytes.subarray(index, index + 32768));
+      }
+      return { name: file.name, type: file.type, data: btoa(binary) };
+    }
+
+    function jobStateLabel(stateValue) {
+      return ({ queued: "Queued", running: "Generating", validating: "Validating", publishing: "Publishing", completed: "Ready for review", failed: "Generation failed", cancelled: "Cancelled" })[stateValue] || "Working";
+    }
+
+    function projectNameFromSlug(slug) {
+      const catalogProject = CATALOG.projects.find(project => project.slug === slug);
+      if (catalogProject) return catalogProject.name;
+      return String(slug || "Your project").split("-").filter(Boolean).map(part => part[0]?.toUpperCase() + part.slice(1)).join(" ");
+    }
+
+    function syncActiveRunBanner(job) {
+      const banner = $("#activeRunBanner");
+      const active = job && !["completed", "failed", "cancelled"].includes(job.state);
+      banner.hidden = !active;
+      if (!active) return;
+      const projectName = projectNameFromSlug(job.projectSlug);
+      $("#activeRunTitle").textContent = `${jobStateLabel(job.state)} ${projectName}`;
+      $("#activeRunMessage").textContent = job.message || "Your project is being built. This can take several minutes.";
+    }
+
+    function syncJobProvider(job) {
+      const name = providerDisplayName(job?.provider);
+      const model = job?.model || "account default";
+      $("#jobProviderLabel").textContent = `${name} · ${model}`;
+      $("#jobIndicator").textContent = job?.provider === "claude" ? "CL" : "CX";
+    }
+
+    function revealJobDialog() {
+      const target = $("#jobDialog");
+      if (target.open) return;
+      const showTarget = () => requestAnimationFrame(() => {
+        if (target.open) return;
+        try {
+          target.showModal();
+        } catch {
+          if (!target.open) target.show();
+        }
+      });
+      const openDialog = $("dialog[open]");
+      if (openDialog && openDialog !== target) {
+        openDialog.addEventListener("close", showTarget, { once: true });
+        openDialog.close();
+      } else {
+        showTarget();
+      }
+    }
+
+    function appendJobEvent(event) {
+      if (!event?.message || event.type === "snapshot") return;
+      const item = document.createElement("li");
+      const time = document.createElement("time");
+      const message = document.createElement("span");
+      time.textContent = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit", second: "2-digit" }).format(new Date(event.at || Date.now()));
+      message.textContent = event.message;
+      item.append(time, message);
+      $("#jobLog").append(item);
+      while ($("#jobLog").children.length > 8) $("#jobLog").firstElementChild.remove();
+    }
+
+    async function finishJobUi(job) {
+      const terminal = ["completed", "failed", "cancelled"].includes(job.state);
+      state.activeJob = job;
+      syncActiveRunBanner(job);
+      syncJobProvider(job);
+      $("#jobIndicator").dataset.active = String(!terminal);
+      $("#jobStatusTitle").textContent = jobStateLabel(job.state);
+      $("#jobStatusMessage").textContent = job.error || job.message;
+      $("#jobDialogClose").disabled = !terminal;
+      $("#cancelJobButton").hidden = terminal;
+      if (job.state === "completed") {
+        await refreshCatalog();
+        const slug = state.pendingProjectSlug || job.projectSlug;
+        state.pendingProjectSlug = null;
+        if (CATALOG.projects.some(project => project.slug === slug)) openProject(slug);
+      }
+      if (terminal) {
+        state.activeJobId = null;
+        state.activeJobStream = null;
+      }
+    }
+
+    function watchJob(jobId, projectSlug, jobInfo = {}) {
+      if (state.activeJobId === jobId && state.activeJobStream) {
+        revealJobDialog();
+        return;
+      }
+      state.activeJobStream?.close();
+      state.activeJobId = jobId;
+      state.pendingProjectSlug = projectSlug || state.pendingProjectSlug;
+      state.activeJob = { id: jobId, projectSlug: state.pendingProjectSlug, provider: jobInfo.provider, model: jobInfo.model, state: "queued", message: "Your project is queued and the local agent will start shortly." };
+      syncActiveRunBanner(state.activeJob);
+      syncJobProvider(state.activeJob);
+      $("#jobLog").replaceChildren();
+      $("#jobIndicator").dataset.active = "true";
+      $("#jobDialogClose").disabled = true;
+      $("#cancelJobButton").hidden = false;
+      $("#jobStatusTitle").textContent = "Queued";
+      $("#jobStatusMessage").textContent = "Your project is queued and the local agent will start shortly.";
+      $("#jobProjectLabel").textContent = `${projectNameFromSlug(state.pendingProjectSlug)} is being built with ${providerDisplayName(state.activeJob.provider)}. The workspace will open it automatically when the validated HTML is ready.`;
+      revealJobDialog();
+
+      const stream = new EventSource(`/api/jobs/${encodeURIComponent(jobId)}/events`);
+      state.activeJobStream = stream;
+      let currentJob = null;
+      const handle = event => {
+        const payload = JSON.parse(event.data);
+        if (payload.type === "snapshot") {
+          currentJob = payload.job;
+          state.activeJob = currentJob;
+          syncActiveRunBanner(currentJob);
+          syncJobProvider(currentJob);
+          $("#jobStatusTitle").textContent = jobStateLabel(currentJob.state);
+          $("#jobStatusMessage").textContent = currentJob.error || currentJob.message;
+          currentJob.events?.forEach(appendJobEvent);
+          if (["completed", "failed", "cancelled"].includes(currentJob.state)) {
+            stream.close();
+            void finishJobUi(currentJob);
+          }
+          return;
+        }
+        appendJobEvent(payload);
+        if (currentJob) {
+          currentJob.message = payload.message;
+          currentJob.state = payload.type === "progress" ? currentJob.state : payload.type;
+          if (payload.error) currentJob.error = payload.error;
+          if (payload.result) currentJob.result = payload.result;
+        }
+        state.activeJob = currentJob || { id: jobId, projectSlug, provider: jobInfo.provider, model: jobInfo.model, state: payload.type, message: payload.message };
+        syncActiveRunBanner(state.activeJob);
+        syncJobProvider(state.activeJob);
+        $("#jobStatusTitle").textContent = jobStateLabel(currentJob?.state || payload.type);
+        $("#jobStatusMessage").textContent = payload.error || payload.message;
+        if (["completed", "failed", "cancelled"].includes(payload.type)) {
+          stream.close();
+          void finishJobUi({ provider: jobInfo.provider, model: jobInfo.model, ...currentJob, id: jobId, projectSlug, state: payload.type, message: payload.message, error: payload.error || null });
+        }
+      };
+      ["snapshot", "queued", "running", "progress", "validating", "publishing", "completed", "failed", "cancelled", "cancelling"].forEach(type => stream.addEventListener(type, handle));
+      stream.onerror = async () => {
+        stream.close();
+        if (state.activeJobStream === stream) state.activeJobStream = null;
+        try {
+          const job = await apiFetch(`/api/jobs/${encodeURIComponent(jobId)}`);
+          await finishJobUi(job);
+        } catch {
+          $("#jobStatusMessage").textContent = "Lost contact with the local service. Restart it to recover the job status.";
+          $("#jobDialogClose").disabled = false;
+        }
+      };
+    }
+
+    async function loadProjectMetadata(slug) {
+      state.projectMetadata = null;
+      $("#agentActionButton").hidden = true;
+      if (!state.apiAvailable) return;
+      try {
+        const metadata = await apiFetch(`/api/projects/${encodeURIComponent(slug)}`);
+        if (state.project !== slug) return;
+        if (!metadata.managed) return;
+        state.projectMetadata = metadata;
+        const button = $("#agentActionButton");
+        button.hidden = false;
+        button.textContent = metadata.workflow.activeJobId ? "View agent run" : ({
+          "directions-ready": "Refine a direction",
+          "refinements-ready": "Choose a refinement",
+          "revision-ready": "Revise or export",
+          finalized: "Revise final design",
+        })[metadata.workflow.stage] || "Continue with agent";
+      } catch (error) {
+        if (error.code !== "project_not_found") console.warn(error.message);
+      }
+    }
+
+    function actionsForStage(stage, lastAction) {
+      if (stage === "directions-ready") return [{ value: "refinements", label: "Generate three refinements" }];
+      if (stage === "refinements-ready") return [{ value: "revision", label: "Polish one refinement" }, { value: "final", label: "Export a clean final" }];
+      if (["revision-ready", "finalized"].includes(stage)) return [{ value: "revision", label: "Apply another revision" }, { value: "final", label: "Export a clean final" }];
+      if (stage?.endsWith("-failed") || stage === "interrupted") return [{ value: lastAction || "directions", label: `Retry ${lastAction || "directions"}` }];
+      return [];
+    }
+
+    function configureRunFields() {
+      const action = $("#runAction").value;
+      const needsSelection = ["refinements", "revision"].includes(action);
+      $("#runSelectionField").hidden = !needsSelection;
+      $("#runSelection").required = needsSelection;
+      $("#runSelectionLabel").textContent = action === "refinements" ? "Selected direction" : "Selected refinement";
+      $("#runSubmit").textContent = action === "final" ? "Generate clean final" : "Start next stage";
+    }
+
+    async function openRunDialog() {
+      if (!state.projectMetadata && state.project) await loadProjectMetadata(state.project);
+      const metadata = state.projectMetadata;
+      if (!metadata) return;
+      if (metadata.workflow.activeJobId) return watchJob(metadata.workflow.activeJobId, metadata.slug, metadata.agent);
+      const actions = actionsForStage(metadata.workflow.stage, metadata.workflow.lastJob?.action);
+      if (!actions.length) return;
+      $("#runDialogDescription").textContent = `This project remains pinned to ${providerDisplayName(metadata.agent.provider)} · ${metadata.agent.model}.`;
+      $("#runAction").innerHTML = actions.map(action => `<option value="${escapeHtml(action.value)}">${escapeHtml(action.label)}</option>`).join("");
+      $("#runActionField").hidden = actions.length === 1;
+      $("#runSelection").value = "";
+      $("#runFeedback").value = "";
+      $("#runFormError").textContent = "";
+      configureRunFields();
+      $("#runDialog").showModal();
+    }
+
+    async function requestProjectRun(payload, confirmOverwrite = false) {
+      try {
+        return await apiFetch(`/api/projects/${encodeURIComponent(state.project)}/runs`, {
+          method: "POST",
+          body: JSON.stringify({ ...payload, confirmOverwrite }),
+        });
+      } catch (error) {
+        if (error.code === "overwrite_confirmation_required" && confirm(`Replace ${error.details?.filename || "the existing output"}?`)) {
+          return requestProjectRun(payload, true);
+        }
+        throw error;
+      }
+    }
 
     function renderLibrary(filter = "") {
       const query = filter.trim().toLowerCase();
@@ -766,7 +1369,7 @@
           <div><strong>${hasProjects ? "No matching projects" : "Your project library is empty"}</strong>
           <p>${hasProjects
             ? "Try a project name, page name, or folder slug."
-            : "Add a direct HTML file such as <code>projects/project-name/sample_hifi_design.html</code>, then run <code>node scripts/build-workspace.mjs</code>."
+            : "Choose <strong>New project</strong> to brief the local agent, or add a direct HTML file under <code>projects/project-name/</code>."
           }</p></div>
         </div>`;
         return;
@@ -794,17 +1397,21 @@
 
     function openProject(slug, restore = false) {
       state.project = slug;
+      state.projectMetadata = null;
       normalizeSelection(currentProject());
       $("#libraryView").hidden = true;
       $("#viewerView").hidden = false;
       $("#tweaksDock").hidden = false;
       renderViewer();
+      void loadProjectMetadata(slug);
       if (!restore) updateHash();
       $("#backButton").focus({ preventScroll: true });
     }
 
     function closeProject() {
       state.project = null;
+      state.projectMetadata = null;
+      $("#agentActionButton").hidden = true;
       $("#viewerView").hidden = true;
       $("#libraryView").hidden = false;
       $("#tweaksDock").hidden = true;
@@ -849,6 +1456,7 @@
       $("#previewTitle").textContent = `${project.name} / ${page?.name || "Page"} / ${deviceLabel(state.device)}`;
       document.title = `${project.name} / ${page?.name || "Page"} — Hi-Fi Designer`;
       loadPreview(page);
+      if (state.projectMetadata?.slug === project.slug) $("#agentActionButton").hidden = false;
     }
 
     function deviceLabel(device) {
@@ -866,11 +1474,49 @@
       try {
         iframe.hidden = false;
         unavailable.hidden = true;
-        iframe.srcdoc = decodeHtml(page.content);
+        iframe.srcdoc = buildPreviewHtml(decodeHtml(page.content));
       } catch {
         iframe.hidden = true;
         unavailable.hidden = false;
       }
+    }
+
+    function buildPreviewHtml(source) {
+      const doc = new DOMParser().parseFromString(source, "text/html");
+      doc.querySelectorAll("base, meta[http-equiv='Content-Security-Policy' i]").forEach(node => node.remove());
+      const csp = doc.createElement("meta");
+      csp.httpEquiv = "Content-Security-Policy";
+      csp.content = "default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src data:; media-src data:; script-src 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'";
+      (doc.head || doc.documentElement).prepend(csp);
+      const style = doc.createElement("style");
+      style.dataset.workspaceTweakBridge = "";
+      style.textContent = "[data-tweaks-bar]{display:none!important}";
+      (doc.head || doc.documentElement).append(style);
+      const bridge = doc.createElement("script");
+      bridge.dataset.workspacePreviewBridge = "";
+      bridge.textContent = `
+        addEventListener("message", event => {
+          if (event.source !== parent || event.data?.type !== "hifi:apply-tweaks") return;
+          const values = event.data.values || {};
+          const root = document.documentElement;
+          root.style.setProperty("--accent", String(values.accent || "#2f5cff"));
+          root.style.setProperty("--font-scale", String(Number(values.font) || 1));
+          root.style.setProperty("--space-scale", String(Number(values.space) || 1));
+          root.style.setProperty("--radius", String(Number(values.radius) || 0) + "px");
+        });
+        document.addEventListener("click", event => {
+          const link = event.target.closest?.('a[href^="#"]');
+          const href = link?.getAttribute("href");
+          if (!href || href === "#") return;
+          let target;
+          try { target = document.getElementById(decodeURIComponent(href.slice(1))); } catch { return; }
+          if (!target) return;
+          event.preventDefault();
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      `;
+      (doc.body || doc.documentElement).append(bridge);
+      return `<!doctype html>\n${doc.documentElement.outerHTML}`;
     }
 
     function updateHash() {
@@ -919,35 +1565,10 @@
 
     function syncPreviewTweaks() {
       const iframe = $("#previewFrameElement");
-      const doc = iframe.contentDocument;
-      if (!doc?.documentElement) return;
-      applyTweaksToRoot(doc.documentElement);
-      if (!doc.querySelector("[data-workspace-tweak-bridge]")) {
-        const style = doc.createElement("style");
-        style.dataset.workspaceTweakBridge = "";
-        style.textContent = "[data-tweaks-bar]{display:none!important}";
-        (doc.head || doc.documentElement).append(style);
-      }
-      if (!doc.documentElement.hasAttribute("data-workspace-fragment-bridge")) {
-        doc.documentElement.setAttribute("data-workspace-fragment-bridge", "");
-        doc.addEventListener("click", event => {
-          const link = event.target.closest?.('a[href^="#"]');
-          const href = link?.getAttribute("href");
-          if (!href || href === "#") return;
-          let target;
-          try {
-            target = doc.getElementById(decodeURIComponent(href.slice(1)));
-          } catch {
-            return;
-          }
-          if (!target) return;
-          event.preventDefault();
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
-          try {
-            doc.defaultView.history.replaceState(null, "", href);
-          } catch {}
-        });
-      }
+      iframe.contentWindow?.postMessage({
+        type: "hifi:apply-tweaks",
+        values: { ...tweakState },
+      }, "*");
     }
 
     function readBlobAsDataUrl(blob) {
@@ -1093,6 +1714,128 @@
       }
     }
 
+    $("#newProjectButton").addEventListener("click", () => {
+      $("#projectFormError").textContent = "";
+      renderProviderControls();
+      $("#projectDialog").showModal();
+      requestAnimationFrame(() => $("#projectName").focus());
+    });
+    $("#viewActiveJobButton").addEventListener("click", revealJobDialog);
+    async function connectProvider(event) {
+      const button = event.currentTarget;
+      const provider = button.dataset.provider;
+      if (button.dataset.state === "connected") return checkProviderStatus();
+      const label = $(`#${provider}StatusLabel`);
+      try {
+        await apiFetch(`/api/providers/${encodeURIComponent(provider)}/login`, { method: "POST", body: "{}" });
+        label.textContent = "Complete sign-in…";
+        [3500, 8000, 15000].forEach(delay => setTimeout(checkProviderStatus, delay));
+      } catch (error) {
+        label.textContent = error.message;
+      }
+    }
+    $$(".agent-status[data-provider]").forEach(button => button.addEventListener("click", connectProvider));
+    $("#projectProvider").addEventListener("change", configureModelPicker);
+    $("#projectModel").addEventListener("change", configureModelPicker);
+    $$('[data-close-dialog]').forEach(button => button.addEventListener("click", () => closeDialog(button.dataset.closeDialog)));
+    $("#projectForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const projectForm = event.currentTarget;
+      const submit = $("#createProjectSubmit");
+      const errorOutput = $("#projectFormError");
+      submit.disabled = true;
+      submit.textContent = "Preparing brief…";
+      errorOutput.textContent = "";
+      try {
+        const files = [...$("#projectImages").files];
+        if (files.length > 5) throw new Error("Upload no more than five reference screenshots.");
+        const form = new FormData(projectForm);
+        const payload = {
+          name: form.get("name"),
+          provider: form.get("provider"),
+          model: form.get("model"),
+          aesthetic: form.get("aesthetic"),
+          references: form.get("references"),
+          intent: form.get("intent"),
+          audience: form.get("audience"),
+          primaryAction: form.get("primaryAction"),
+          guardrails: form.get("guardrails"),
+          referenceImages: await Promise.all(files.map(fileToReference)),
+        };
+        submit.textContent = "Starting agent…";
+        const result = await apiFetch("/api/projects", { method: "POST", body: JSON.stringify(payload) });
+        state.pendingProjectSlug = result.project.slug;
+        projectForm.reset();
+        watchJob(result.job.id, result.project.slug, result.job);
+      } catch (error) {
+        if (error.code === "project_exists" && error.details?.slug) {
+          try {
+            const existing = await apiFetch(`/api/projects/${encodeURIComponent(error.details.slug)}`);
+            if (existing.workflow?.activeJobId) {
+              state.pendingProjectSlug = existing.slug;
+              projectForm.reset();
+              watchJob(existing.workflow.activeJobId, existing.slug, existing.agent);
+              return;
+            }
+            await refreshCatalog();
+            if (CATALOG.projects.some(project => project.slug === existing.slug)) {
+              closeDialog("projectDialog");
+              projectForm.reset();
+              openProject(existing.slug);
+              return;
+            }
+          } catch {
+            // Keep the original conflict message when recovery is unavailable.
+          }
+          errorOutput.textContent = "A project with this name already exists, but no generation is running. Choose a different project name.";
+        } else {
+          errorOutput.textContent = error.message;
+        }
+      } finally {
+        submit.disabled = false;
+        submit.textContent = "Create and generate";
+      }
+    });
+    $("#agentActionButton").addEventListener("click", openRunDialog);
+    $("#runAction").addEventListener("change", configureRunFields);
+    $("#runForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const submit = $("#runSubmit");
+      const errorOutput = $("#runFormError");
+      submit.disabled = true;
+      errorOutput.textContent = "";
+      try {
+        const payload = {
+          action: $("#runAction").value,
+          selection: $("#runSelection").value.trim(),
+          feedback: $("#runFeedback").value.trim(),
+        };
+        const result = await requestProjectRun(payload);
+        closeDialog("runDialog");
+        watchJob(result.job.id, state.project, result.job);
+      } catch (error) {
+        errorOutput.textContent = error.message;
+      } finally {
+        submit.disabled = false;
+        configureRunFields();
+      }
+    });
+    $("#cancelJobButton").addEventListener("click", async () => {
+      if (!state.activeJobId) return;
+      $("#cancelJobButton").disabled = true;
+      try {
+        await apiFetch(`/api/jobs/${encodeURIComponent(state.activeJobId)}/cancel`, { method: "POST", body: "{}" });
+      } catch (error) {
+        $("#jobStatusMessage").textContent = error.message;
+      } finally {
+        $("#cancelJobButton").disabled = false;
+      }
+    });
+    $("#jobDialogClose").addEventListener("click", () => closeDialog("jobDialog"));
+    $("#jobDialog").addEventListener("cancel", event => {
+      if (state.activeJobId) event.preventDefault();
+    });
+
     $("#projectSearch").addEventListener("input", event => renderLibrary(event.target.value));
     $("#backButton").addEventListener("click", closeProject);
     $$(".device-button").forEach(button =>
@@ -1107,7 +1850,7 @@
     });
     $("#previewFrameElement").addEventListener("load", syncPreviewTweaks);
     document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && state.project) closeProject();
+      if (event.key === "Escape" && !$("dialog[open]") && state.project) closeProject();
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k" && !state.project) {
         event.preventDefault();
         $("#projectSearch").focus();
@@ -1117,6 +1860,7 @@
     initializeTweaks();
     renderLibrary();
     restoreHash();
+    checkProviderStatus();
   </script>
 </body>
 </html>

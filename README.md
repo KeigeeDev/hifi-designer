@@ -86,7 +86,44 @@ token adjustments baked in and all tweak controls removed. Embedded raster image
 resized when necessary and re-encoded only when that reduces the final file size.
 Nested HTML files, hidden folders, and empty folders are excluded.
 
-To rebuild, serve, and open the workspace in one step, run:
+## Generate projects from the dashboard
+
+The local workspace service can create projects with either OpenAI Codex or Anthropic
+Claude Code. Each project is pinned to the provider and model selected in its brief.
+Generation uses the provider's existing local subscription login; API-key billing is
+not accepted, and credentials are never accepted, stored, or returned by the app.
+
+Prerequisites:
+
+```powershell
+npm install
+# Then choose one:
+codex login
+# or
+claude auth login --claudeai
+```
+
+Only one provider is required. Use `codex login` for a ChatGPT subscription, or
+`claude auth login --claudeai` for a paid Claude subscription. The dashboard shows
+which subscriptions are connected and enables only those providers. Claude's
+**Account default** model follows the model available to the signed-in plan; explicit
+Sonnet, Opus, and Haiku choices are also available when the plan permits them.
+
+Choose **New project** in the dashboard and provide the complete design brief:
+aesthetic direction, references, intent and audience, primary action, and guardrails.
+The service creates an ignored local project, records the selected subscription and
+model, streams safe lifecycle progress, checks the generated HTML for the
+standalone/token/tweaks-bar contract, and rebuilds the
+portable catalog after publishing. Direction selection, refinement, revisions, and
+clean-final generation continue in the same provider session. A project cannot switch
+providers or models midway through its workflow.
+
+Reference screenshots may be PNG, JPEG, or WebP, up to five files and 5 MB each.
+They remain under the ignored project folder and are sent to the agent only for that
+project's design work.
+
+To install missing dependencies, rebuild, serve, and open the workspace in one step,
+run:
 
 ```powershell
 .\start-workspace.cmd
@@ -96,3 +133,7 @@ The default address is `http://127.0.0.1:8080/hifi-designer-workspace.html`. Pas
 different port when needed, for example `.\start-workspace.cmd -Port 3000`. The
 wrapper calls `start-workspace.ps1` with a temporary execution-policy bypass. Keep
 the terminal open and press `Ctrl+C` to stop the server.
+
+The service binds only to `127.0.0.1`, validates browser origins and project paths,
+uses an allowlisted child-process environment, and stages agent output before it can
+be published. See `SECURITY.md` for the full local threat boundary.

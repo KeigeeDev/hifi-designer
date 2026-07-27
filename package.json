@@ -1,0 +1,18 @@
+{
+  "name": "local-hifi-designer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first dashboard for generating and reviewing standalone hi-fi HTML designs with subscription-backed AI agents.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-workspace.mjs",
+    "start": "node server/workspace-server.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@openai/codex-sdk": "0.145.0"
+  }
+}
