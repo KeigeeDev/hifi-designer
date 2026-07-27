@@ -29,27 +29,27 @@ function Open-DashboardInBrowser {
 Set-Location -LiteralPath $workspaceRoot
 
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-  throw "Node.js is required to rebuild the project catalog."
+  throw "Node.js 18 or newer is required to run the local workspace service."
 }
 
-$pythonCommand = Get-Command py -ErrorAction SilentlyContinue
-if (-not $pythonCommand) {
-  $pythonCommand = Get-Command python -ErrorAction SilentlyContinue
-}
-if (-not $pythonCommand) {
-  throw "Python is required to run the local HTTP server. Install Python, then try again."
+$codexCommand = Get-Command codex -ErrorAction SilentlyContinue
+$claudeCommand = Get-Command claude -ErrorAction SilentlyContinue
+if (-not $codexCommand -and -not $claudeCommand) {
+  throw "Install and sign in to Codex or Claude Code before starting agent generation."
 }
 
-Write-Host "Rebuilding the project catalog..."
-& node "scripts\build-workspace.mjs"
-if ($LASTEXITCODE -ne 0) {
-  throw "The project catalog build failed with exit code $LASTEXITCODE."
+if (-not (Test-Path -LiteralPath "node_modules\@openai\codex-sdk")) {
+  Write-Host "Installing local workspace dependencies..."
+  & npm install --no-audit --no-fund
+  if ($LASTEXITCODE -ne 0) {
+    throw "Dependency installation failed with exit code $LASTEXITCODE."
+  }
 }
 
 Write-Host "Starting the workspace at $dashboardUrl"
 $serverProcess = Start-Process `
-  -FilePath $pythonCommand.Source `
-  -ArgumentList @("-m", "http.server", "$Port", "--bind", $serverHost) `
+  -FilePath (Get-Command node).Source `
+  -ArgumentList @("server\workspace-server.mjs", "--port", "$Port") `
   -WorkingDirectory $workspaceRoot `
   -NoNewWindow `
   -PassThru

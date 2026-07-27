@@ -8,6 +8,19 @@ hifi-designer-workspace.html
 # Local configuration and operating-system artifacts.
 .env
 .env.*
+*.local
 *.log
+.npmrc
+.codex/
+.claude/
+.hifi-runtime/
+node_modules/
+*.pem
+*.key
+*.p12
+*.pfx
+auth.json
+credentials.json
+secrets.json
 .DS_Store
 Thumbs.db

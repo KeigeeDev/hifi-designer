@@ -187,11 +187,46 @@ test("workspace preview keeps fragment links inside the active page", async () =
     "utf8",
   );
 
-  assert.match(template, /iframe\.srcdoc = decodeHtml\(page\.content\)/);
-  assert.match(template, /data-workspace-fragment-bridge/);
+  assert.match(template, /iframe\.srcdoc = buildPreviewHtml\(decodeHtml\(page\.content\)\)/);
+  assert.match(template, /sandbox="allow-scripts allow-forms allow-modals allow-downloads"/);
+  assert.match(template, /dataset\.workspacePreviewBridge/);
   assert.match(template, /event\.target\.closest\?\.\('a\[href\^="#"\]'\)/);
   assert.match(template, /target\.scrollIntoView\(\{ behavior: "smooth", block: "start" \}\)/);
   assert.match(template, /event\.preventDefault\(\)/);
+  assert.match(template, /connect-src 'none'/);
+  assert.doesNotMatch(template, /iframe\.contentDocument/);
+});
+
+test("workspace keeps long-running generation visible and recovers duplicate submissions", async () => {
+  const template = await readFile(
+    new URL("../workspace.template.html", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(template, /id="activeRunBanner"[^>]*aria-live="polite"[^>]*hidden/);
+  assert.match(template, /id="viewActiveJobButton"[^>]*>View generation progress</);
+  assert.match(template, /function syncActiveRunBanner\(job\)/);
+  assert.match(template, /function revealJobDialog\(\)/);
+  assert.match(template, /openDialog\.addEventListener\("close", showTarget, \{ once: true \}\)/);
+  assert.match(template, /const projectForm = event\.currentTarget;/);
+  assert.match(template, /projectForm\.reset\(\);/);
+  assert.match(template, /error\.code === "project_exists" && error\.details\?\.slug/);
+  assert.match(template, /if \(existing\.workflow\?\.activeJobId\)/);
+});
+
+test("workspace requires an explicit connected subscription provider and model", async () => {
+  const template = await readFile(
+    new URL("../workspace.template.html", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(template, /id="codexStatusButton"[^>]*data-provider="codex"/);
+  assert.match(template, /id="claudeStatusButton"[^>]*data-provider="claude"/);
+  assert.match(template, /id="projectProvider"[^>]*name="provider"[^>]*required/);
+  assert.match(template, /id="projectModel"[^>]*name="model"[^>]*required/);
+  assert.match(template, /This choice is pinned to the project/);
+  assert.match(template, /provider: form\.get\("provider"\)/);
+  assert.match(template, /model: form\.get\("model"\)/);
 });
 
 test("drop-in tweaks bar can export its own clean final HTML", async () => {

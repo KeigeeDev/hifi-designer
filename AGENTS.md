@@ -44,3 +44,9 @@ After adding or changing a direct HTML file in any project, run
 `node scripts/build-workspace.mjs` to rebuild the local project browser. Edit
 the root `workspace.template.html` when changing the browser itself; do not hand-edit
 the generated root `hifi-designer-workspace.html` output.
+
+When an agent is launched by the dashboard service, it works in an ignored staging
+directory with a dashboard-specific override. In that environment, write only the
+requested staged HTML file and do not run the workspace builder; the trusted host
+validates the output, publishes it to `projects/<project-name>/`, and rebuilds the
+catalog.

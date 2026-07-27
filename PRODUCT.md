@@ -6,17 +6,18 @@ product
 
 ## Users
 
-A single designer working locally on a Windows desktop. The workspace is used during
-focused review sessions to move between generated HTML projects without navigating
-the filesystem by hand.
+A single designer working locally on a Windows desktop. The workspace is used to
+brief a subscription-backed Codex or Claude agent, generate high-fidelity HTML
+directions, and review the outputs without navigating the filesystem by hand.
 
 ## Product Purpose
 
-The Local Hi-Fi Project Browser scans the repository's `projects/` directory, builds
-a portable catalog, and lets the designer open every project page in one review
-surface. Success means finding a project quickly, moving between its pages, comparing
-responsive behavior at known widths, tuning shared design tokens without leaving the
-workspace, and exporting the accepted page as clean standalone HTML.
+The Local Hi-Fi Designer collects a complete brief, runs a locally authenticated
+selected agent through the defined design workflow, validates and publishes its HTML,
+and presents every output in one review surface. Success means moving from brief to
+five directions, choosing and refining a direction, comparing responsive behavior,
+tuning shared design tokens, and exporting accepted standalone HTML without exposing
+account credentials to the browser or project files.
 
 ## Brand Personality
 
@@ -40,10 +41,17 @@ navigation that makes standard actions harder to recognize.
    navigation wherever practical.
 4. Favor earned familiarity. Search, tabs, back navigation, and device controls use
    recognizable product patterns.
-5. Work locally by default. The catalog remains portable, dependency-free, and useful
-   without a server or account.
+5. Work locally by default. Agent generation requires the localhost service and a
+   connected ChatGPT or Claude subscription; the generated catalog remains portable
+   and dependency-free.
 6. Make the handoff explicit. A finished refinement ends with a clear choice between
    another revision and a clean export with review controls removed.
+7. Keep trust visible. Account connection, generation progress, validation, failure,
+   cancellation, and publishing state should always be understandable without
+   exposing agent reasoning or authentication data.
+8. Pin project execution. Provider and model are chosen before creation and remain
+   fixed for all continuation runs so output history stays coherent and billing is
+   predictable.
 
 ## Accessibility & Inclusion
 
